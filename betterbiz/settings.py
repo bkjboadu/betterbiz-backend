@@ -123,8 +123,12 @@ WSGI_APPLICATION = "betterbiz.wsgi.application"
 #     }
 # }
 
+# DATABASES = {
+#     'default': dj_database_url.config(default='mysql://root:@localhost:3306/betterbiz')
+# }
+
 DATABASES = {
-    'default': dj_database_url.config(default='mysql://root:@localhost:3306/betterbiz')
+    'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
 }
 
 # DATABASES = {
