@@ -1,1 +1,1 @@
-web: gunicorn betterbiz_backend.wsgi
+web: gunicorn betterbiz.wsgi
