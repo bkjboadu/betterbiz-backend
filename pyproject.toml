@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "betterbiz"
+version = "0.1.0"
+description = ""
+authors = ["bkj"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+django = "^5.0.2"
+mysqlclient = "^2.2.4"
+pillow = "^10.2.0"
+djangorestframework = "^3.14.0"
+djangorestframework-simplejwt = "^5.3.1"
+django-cors-headers = "^4.3.1"
+dj-database-url = "^2.1.0"
+whitenoise = "^6.6.0"
+gunicorn = "^21.2.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,1 @@
+web: gunicorn betterbiz_backend.wsgi
