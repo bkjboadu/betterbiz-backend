@@ -42,6 +42,7 @@ class User(AbstractBaseUser,PermissionsMixin):
     state = models.CharField(max_length=255,null=True,blank=True)
     zipcode = models.CharField(max_length=10,null=True,blank=True)
     contact = models.CharField(max_length=255,null=True,blank=True)
+    has_completed_questionnaire = models.BooleanField(default=False)
 
     date_joined = models.DateTimeField(default=timezone.now)
     last_login = models.DateTimeField(blank=True,null=True)
