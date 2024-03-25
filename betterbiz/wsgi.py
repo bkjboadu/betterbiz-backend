@@ -15,6 +15,6 @@ from django.core.wsgi import get_wsgi_application
 #     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "betterbiz.settings.production")
 # else:    
 environment = os.getenv('DJANGO_ENV','development')
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", f"betterbiz.settings.{environment}")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", f"settings.{environment}")
 
 application = get_wsgi_application()
