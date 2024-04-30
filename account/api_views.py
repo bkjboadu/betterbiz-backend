@@ -69,17 +69,21 @@ class AccountViewSet(viewsets.ModelViewSet):
             verification_url = request.build_absolute_uri(
                 reverse('account-verify-email',kwargs={'uidb64':uidb64,'token':token})
             )
-            print(verification_url)
             subject = 'Email Verification'
             body = f'Please verify your email address by clicking the link {verification_url}'
-            send_mail(subject,body,settings.DEFAULT_FROM_EMAIL,[user.email])
-            message = 'Email verification link sent'
+            try:
+                print(verification_url)
+                send_mail(subject,body,settings.DEFAULT_FROM_EMAIL,[user.email])
+                message = 'Email verification link sent'
+                return Response({"message":message},status=status.HTTP_201_CREATED)
+            except Exception as e:
+                return Response({'error':str(e)},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             message = form.errors
         return Response({'status':message})
 
     @action(detail=False,methods=['GET'],url_path='verify-email/(?P<uidb64>[^/.]+)/(?P<token>[^/.]+)')
-    def verify_email(self,request,uidb64,token):
+    def verify_email(self,uidb64,token):
         try:
             uid = urlsafe_base64_decode(uidb64).decode()
             user = User.objects.get(pk=uid)
