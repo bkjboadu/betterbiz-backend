@@ -19,6 +19,8 @@ gunicorn = "^21.2.0"
 python-dotenv = "^1.0.1"
 sendgrid = "^6.11.0"
 requests-oauthlib = "^2.0.0"
+black = "^24.4.2"
+flake8 = "^7.0.0"
 
 
 [build-system]

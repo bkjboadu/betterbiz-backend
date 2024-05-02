@@ -1,11 +1,9 @@
-from django.urls import path,include
+from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .api_views import AIChatMessageViewSet
 
 router = DefaultRouter()
-router.register('',AIChatMessageViewSet)
+router.register("", AIChatMessageViewSet)
 
 
-urlpatterns = [
-    path("messages/",include(router.urls))
-]
+urlpatterns = [path("messages/", include(router.urls))]

@@ -13,50 +13,38 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 # SECRET_KEY = "django-insecure-w!#&qu$p-)d5$oqi7qx-n1k$-=6r=+f@-hn0t#@^^zs#qr8ahn"
 
-SECRET_KEY = os.environ.get('SECRET_KEY','')
+SECRET_KEY = os.environ.get("SECRET_KEY", "")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 # ALLOWED_HOSTS = []
 
-ALLOWED_HOSTS = ['betterbiz-ffe47fd6d1ed.herokuapp.com', 'localhost', '127.0.0.1']
-
+ALLOWED_HOSTS = ["betterbiz-ffe47fd6d1ed.herokuapp.com", "localhost", "127.0.0.1"]
 
 
 # Application definition
 
-AUTH_USER_MODEL = 'account.User'
+AUTH_USER_MODEL = "account.User"
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=30),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=100),
-    'ROTATE_REFRESH_TOKENS': False
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=30),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=100),
+    "ROTATE_REFRESH_TOKENS": False,
 }
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
-    'DEFAULT_PERMISSION_CLASSES':(
-        'rest_framework.permissions.IsAuthenticated',
-    ),
-    'DEFAULT_RENDERERS_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',
-    )
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+    "DEFAULT_RENDERERS_CLASSES": ("rest_framework.renderers.JSONRenderer",),
 }
 
-CORS_ALLOWED_ORIGINS = [
-    ' http://localhost:5173'
-] 
+CORS_ALLOWED_ORIGINS = [" http://localhost:5173"]
 
-CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:5173'
-]
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-
-
+CSRF_TRUSTED_ORIGINS = ["http://localhost:5173"]
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 
 INSTALLED_APPS = [
@@ -68,12 +56,12 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "rest_framework_simplejwt",
-    'corsheaders',
+    "corsheaders",
     "account",
-    'questionnaire',
-    'payment',
-    'business',
-    'api_miners'
+    "questionnaire",
+    "payment",
+    "business",
+    "api_miners",
 ]
 
 
@@ -86,7 +74,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware"
+    "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
 
 ROOT_URLCONF = "betterbiz.urls"
@@ -124,9 +112,7 @@ WSGI_APPLICATION = "betterbiz.wsgi.application"
 #     'default': dj_database_url.config(default='mysql://root:@localhost:3306/betterbiz')
 # }
 
-DATABASES = {
-    'default': dj_database_url.config(default=os.environ.get('JAWSDB_URL'))
-}
+DATABASES = {"default": dj_database_url.config(default=os.environ.get("JAWSDB_URL"))}
 
 # DATABASES = {
 #     "default": {
@@ -175,14 +161,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = "static/"
-STATIC_ROOT = os.path.join(BASE_DIR / 'staticfiles')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATIC_ROOT = os.path.join(BASE_DIR / "staticfiles")
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-MEDIA_ROOT = os.path.join(BASE_DIR,"media")
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 MEDIA_URL = "/media/"
