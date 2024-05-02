@@ -7,4 +7,5 @@ class AIChatMessageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AIChatMessage
-        fields = ["id", "message", "user", "created_at"]
+        fields = "__all__"
+
