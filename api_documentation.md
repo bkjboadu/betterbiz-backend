@@ -1,5 +1,6 @@
 API Documentation Template
 
+ACCOUNT
 
 API Endpoint: Sign Up
 URL: http://127.0.0.1:8000/api/accounts/signup/
@@ -41,7 +42,7 @@ Copy code
 curl -X POST -H "Content-Type: application/json" -d '{"email": "brbojr@gmail.com", "password": "password123"}' http://127.0.0.1:8000/api/login/
 
 Password Change Request
-Endpoint: POST /api/accounts/password-change-request/
+Endpoint: POST /api/accounts/passwordchangerequest/
 Description: This endpoint is used to initiate a password change request. When a user wants to change their password, they need to call this endpoint with their email address.
 Request Method: POST
 Base URL: http://localhost:8000

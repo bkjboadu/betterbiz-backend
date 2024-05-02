@@ -26,14 +26,21 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': False
 }
 
+## quickbooks
+
+
+QUICKBOOKS_CLIENT_ID = os.getenv('QUICKBOOKS_CLIENT_ID')
+QUICKBOOKS_CLIENT_SECRET = os.getenv('QUICKBOOKS_CLIENT_SECRET')
+QUICKBOOKS_REDIRECT_URI = os.getenv('QUICKBOOKS_REDIRECT_URI')
+
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.sendgrid.net'
-EMAIL_HOST_USER = 'apikey'
-EMAIL_HOST_PASSWORD = os.getenv('SENDGRID_PASSWORD')  
+EMAIL_HOST_USER = 'apikey' 
+EMAIL_HOST_PASSWORD = os.getenv('SENDGRID_API_KEY') 
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-# DEFAULT_FROM_EMAIL = 'Obi@betterbizscore.com'
+DEFAULT_FROM_EMAIL = 'bright@betterbizscore.com'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -44,7 +51,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_RENDERERS_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
-    )
+    ),
 }
 
 CORS_ALLOWED_ORIGINS = [
@@ -58,14 +65,6 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_PORT = 587
-# EMAIL_HOST_USER =
-# EMAIL_HOST_PASSWORD =
-# EMAIL_USE_TLS = True
-#
-# DEFAULT_FROM_EMAIL =
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -79,7 +78,8 @@ INSTALLED_APPS = [
     "account",
     'questionnaire',
     'payment',
-    'business'
+    'business',
+    'chat'
 ]
 
 
@@ -167,3 +167,5 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 MEDIA_ROOT = os.path.join(BASE_DIR,"media")
 
 MEDIA_URL = "/media/"
+
+LOGIN_REDIRECT_URL = '/login'
