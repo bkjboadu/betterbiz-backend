@@ -105,15 +105,12 @@ class AccountViewSet(viewsets.ModelViewSet):
             )
             subject = "Email Verification"
             body = f"Please verify your email address by clicking the link {verification_url}"
+
             try:
                 email_sent = send_email(
                     subject=subject, content=body, to_emails=user.email
                 )
-                message = (
-                    "Email verification link sent"
-                    if email_sent
-                    else "Error sending email"
-                )
+                message = "Email verification link sent" if email_sent else "Error sending email"
                 return Response({"message": message}, status=status.HTTP_201_CREATED)
             except Exception as e:
                 return Response(
@@ -121,7 +118,7 @@ class AccountViewSet(viewsets.ModelViewSet):
                 )
         else:
             message = form.errors
-        return Response({"status": message})
+            return Response({"status": message})
 
     @action(detail=True, methods=["GET"], url_path="getverificationlink")
     def getverificationlink(self, request, pk=None):
