@@ -2,6 +2,7 @@ from django.db import models
 import uuid
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserManager
 from django.utils import timezone
+from business.models import Business
 
 
 class CustomUserManager(UserManager):
@@ -51,6 +52,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = "email"
     EMAIL_FIELD = "email"
+
+    @property
+    def has_companies(self):
+        return Business.objects.filter(user=self).exists()
 
     def __str__(self):
         return self.email
