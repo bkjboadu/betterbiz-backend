@@ -1,30 +1,28 @@
-import requests
+from openai import OpenAI
+import time
 
-# API key and endpoint
-api_key = "sk-proj-9odFjYa8Yy7Lt5jtCt00T3BlbkFJga8I8MyL6L8yjVk8CvCO"
-url = "https://api.openai.com/v1/chat/completions"
+client = OpenAI(api_key="sk-proj-9odFjYa8Yy7Lt5jtCt00T3BlbkFJga8I8MyL6L8yjVk8CvCO")
 
-# Headers with the API key
-headers = {
-    "Authorization": f"Bearer {api_key}",
-    "Content-Type": "application/json"
-}
+assist_id = "asst_1O5SgsfoazIZS5I8AagcswUa"
+thread = client.beta.threads.create(
+    messages= [
+    {"role": "user", "content": "Who do you work for?"}
+  ]
+)
+# import requests
+run = client.beta.threads.runs.create(thread_id=thread.id,assistant_id=assist_id)
+print({run.id})
 
-# Data payload
-data = {
-    "model": "gpt-3.5-turbo",
-    "messages": [
-        {"role": "user", "content": "Hello! How can I help you today?"}
-    ]
-}
-
-# POST request
-response = requests.post(url, json=data, headers=headers)
-
-# Handle response
-if response.status_code == 200:
-    print("Success!")
-    print(response.json())
+while run.status !="completed":
+    run = client.beta.threads.runs.retrieve(thread_id=thread.id,run_id=run.id)
+    print(f"Rn status: {run.status}")
+    time.sleep(1)
 else:
-    print("Failed to fetch data:")
-    print(response.text)
+    print("Run completed!")
+
+message_response = client.beta.threads.messages.list(thread_id=thread.id)
+message = message_response.data
+
+lateest_message = message[0]
+print(lateest_message)
+print(lateest_message.content[0].text.value)
