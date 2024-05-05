@@ -110,7 +110,7 @@ class AccountViewSet(viewsets.ModelViewSet):
 
             try:
                 email_sent = send_email(
-                    subject=subject, content=body, to_emails=user.email
+                    from_email="bright@betterbizscore.com",subject=subject, content=body, to_emails=user.email
                 )
 
                 if email_sent:
