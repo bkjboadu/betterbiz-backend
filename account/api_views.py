@@ -112,8 +112,11 @@ class AccountViewSet(viewsets.ModelViewSet):
                 email_sent = send_email(
                     subject=subject, content=body, to_emails=user.email
                 )
-                message = "Email verification link sent" if email_sent else "Error sending email"
-                return Response({"message": message}, status=status.HTTP_201_CREATED)
+
+                if email_sent:
+                    return Response({"message": "Email verification link sent"}, status=status.HTTP_201_CREATED)
+                else:
+                    return Response({"message": "Error sending email"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             except Exception as e:
                 return Response(
                     {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -141,11 +144,10 @@ class AccountViewSet(viewsets.ModelViewSet):
         )
         try:
             email_sent = send_email(subject=subject, content=body, to_emails=user.email)
-            message = (
-                "Email verification link sent" if email_sent else "Error sending email"
-            )
-            print(body)
-            return Response({"message": message}, status=status.HTTP_201_CREATED)
+            if email_sent:
+                return Response({"message": "Email verification link sent"}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({"message": "Error sending email"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
             return Response(
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
