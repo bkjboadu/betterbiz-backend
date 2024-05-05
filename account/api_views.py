@@ -106,19 +106,21 @@ class AccountViewSet(viewsets.ModelViewSet):
             subject = "Email Verification"
             body = f"Please verify your email address by clicking the link {verification_url}"
 
+            message = "trial"
+
             try:
                 email_sent = send_email(
                     subject=subject, content=body, to_emails=user.email
                 )
                 message = "Email verification link sent" if email_sent else "Error sending email"
-                return Response({"message": "done"}, status=status.HTTP_201_CREATED)
+                return Response({"message": message}, status=status.HTTP_201_CREATED)
             except Exception as e:
                 return Response(
                     {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
         else:
             message = form.errors
-            return Response({"status": "done"})
+            return Response({"status": message})
 
     @action(detail=True, methods=["GET"], url_path="getverificationlink")
     def getverificationlink(self, request, pk=None):
