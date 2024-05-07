@@ -112,10 +112,10 @@ class AccountViewSet(viewsets.ModelViewSet):
                     from_email="bright@betterbizscore.com",subject=subject, content=body, to_emails=user.email
                 )
 
-                if email_sent:
+                if email_sent == True:
                     return Response({"message": "Email verification link sent"}, status=status.HTTP_201_CREATED)
                 else:
-                    return Response({"message": "Error sending email"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                    return Response({"message": f"Error sending email {email_sent}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             except Exception as e:
                 return Response(
                     {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
