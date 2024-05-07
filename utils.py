@@ -6,7 +6,7 @@ from sendgrid.helpers.mail import Mail
 from django.conf import settings
 
 
-def send_email(to_emails, subject, content, from_email=settings.DEFAULT_FROM_EMAIL):
+def send_email(to_emails, subject, content, from_email="bright@betterbizscore.com"):
     message = Mail(
         from_email=from_email,
         to_emails=to_emails,
@@ -19,4 +19,4 @@ def send_email(to_emails, subject, content, from_email=settings.DEFAULT_FROM_EMA
         return True
     except Exception as e:
         print(e)
-        return False
+        return e
