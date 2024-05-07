@@ -77,13 +77,13 @@ class AccountViewSet(viewsets.ModelViewSet):
                 )
             else:
                 return Response(
-                    {"error": "Invalid token","result":False}, status=status.HTTP_404_UNAUTHORIZED
+                    {"message": "Invalid token","result":False}, status=status.HTTP_404_UNAUTHORIZED
                 )
 
         except Exception as e:
             print(e)
             return Response(
-                {"error": "Token decoding error","result":False}, status=status.HTTP_401_UNAUTHORIZED
+                {"message": "Token decoding error","result":False}, status=status.HTTP_401_UNAUTHORIZED
             )
 
     @action(detail=False, methods=["post"])
@@ -119,7 +119,7 @@ class AccountViewSet(viewsets.ModelViewSet):
                     return Response({"message": f"Error sending email {email_sent}","result":False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             except Exception as e:
                 return Response(
-                    {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                    {"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
         else:
             message = form.errors
@@ -150,7 +150,7 @@ class AccountViewSet(viewsets.ModelViewSet):
                 return Response({"message": f"Error sending email {email_sent}","result":False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
             return Response(
-                {"error": str(e),"result":False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {"message": str(e),"result":False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
     @action(
@@ -176,7 +176,7 @@ class AccountViewSet(viewsets.ModelViewSet):
         else:
             message = "error"
         result = True if message == "User verified" else False
-        return Response({"status": message,"result":result})
+        return Response({"message": message,"result":result})
 
     @action(detail=False, methods=["post", "GET"])
     def passwordchangerequest(self, request):
@@ -189,7 +189,7 @@ class AccountViewSet(viewsets.ModelViewSet):
             user = User.objects.get(email=email)
         except (TypeError, OverflowError, ValueError, User.DoesNotExist) as e:
             print(e)
-            return Response({"status": "User with this email does not exist"})
+            return Response({"message": "User with this email does not exist"})
 
         uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
         token = password_change_token_generator.make_token(user)
@@ -205,7 +205,7 @@ class AccountViewSet(viewsets.ModelViewSet):
         email_sent = send_email(subject=subject, content=body, to_emails=user.email)
         # message = 'Email verification link sent' if email_sent else "Error sending email"
         send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [user.email])
-        return Response({"status": "Password reset link sent","result": True})
+        return Response({"message": "Password reset link sent","result": True})
 
     @action(
         detail=False,
@@ -232,7 +232,7 @@ class AccountViewSet(viewsets.ModelViewSet):
                 message = "Invalid input"
         else:
             message = "Not authenticated"
-        return Response({"status": message,"result": True})
+        return Response({"message": message,"result": True})
 
     @action(detail=True, methods=["POST"], url_path="passwordreset")
     def passwordreset(self, request, pk=None):
@@ -247,16 +247,16 @@ class AccountViewSet(viewsets.ModelViewSet):
         user = self.get_object()
 
         if not user.check_password(old_password):
-            return Response({"error": "Incorrect old password"})
+            return Response({"message": "Incorrect old password"})
 
         # check if the new passwords match and meet criteria
         if new_password != confirm_new_password:
-            return Response({"error": "New password do not match"})
+            return Response({"message": "New password do not match"})
 
         # if all checks are okay, set the new password
         user.set_password(new_password)
         user.save()
-        return Response({"success": "Password updated successfully","result": True})
+        return Response({"message": "Password updated successfully","result": True})
 
     @action(detail=True, methods=["PUT", "PATCH"], url_path="edit-profile")
     def edit_profile(self, request, pk=None):
@@ -266,11 +266,28 @@ class AccountViewSet(viewsets.ModelViewSet):
         user = self.get_object()
         if not user:
             return Response(
-                {"error": "User not found","result": False}, status=status.HTTP_404_NOT_FOUND
+                {"message": "User not found","result": False}, status=status.HTTP_404_NOT_FOUND
             )
 
         serializer = UserSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response({"data":serializer.data,"result": True})
-        return Response({"data":serializer.errors,"result":False}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message":serializer.data,"result": True})
+        return Response({"message":serializer.errors,"result":False}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True,methods=["POST"])
+    def setdefaultcompany(self,request,pk=None):
+        user = self.get_object()
+        if not user:
+            return Response(
+                {"message": "User not found","result": False}, status=status.HTTP_404_NOT_FOUND
+            )
+        try:
+            business_id = request.data.get('id',"")
+            if business_id is not None:
+                business = Business.objects.get(id=business_id)
+                user.default_company = business
+                return Response({"message":"User default company changed"})
+        except:
+            return Response({"message":"Business not found"})
+        
