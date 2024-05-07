@@ -283,7 +283,7 @@ class AccountViewSet(viewsets.ModelViewSet):
                 {"message": "User not found","result": False}, status=status.HTTP_404_NOT_FOUND
             )
         try:
-            business_id = request.data.get('id',"")
+            business_id = request.data.get('default_company',"")
             if business_id is not None:
                 business = Business.objects.get(id=business_id)
                 user.default_company = business
