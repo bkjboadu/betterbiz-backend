@@ -289,5 +289,5 @@ class AccountViewSet(viewsets.ModelViewSet):
                 user.default_company = business
                 return Response({"message":"User default company changed","result":True})
         except:
-            return Response({"message":"Business not found",,"result":False})
+            return Response({"message":"Business not found","result":False})
         
