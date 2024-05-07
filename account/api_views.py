@@ -72,17 +72,18 @@ class AccountViewSet(viewsets.ModelViewSet):
                     {
                         "user": user_serializer.data,
                         "businesses": business_serializer.data,
+                        "result":True
                     }
                 )
             else:
                 return Response(
-                    {"error": "Invalid token"}, status=status.HTTP_404_UNAUTHORIZED
+                    {"error": "Invalid token","result":False}, status=status.HTTP_404_UNAUTHORIZED
                 )
 
         except Exception as e:
             print(e)
             return Response(
-                {"error": "Token decoding error"}, status=status.HTTP_401_UNAUTHORIZED
+                {"error": "Token decoding error","result":False}, status=status.HTTP_401_UNAUTHORIZED
             )
 
     @action(detail=False, methods=["post"])
@@ -113,16 +114,16 @@ class AccountViewSet(viewsets.ModelViewSet):
                 )
 
                 if email_sent == True:
-                    return Response({"message": "Email verification link sent"}, status=status.HTTP_201_CREATED)
+                    return Response({"message": "Email verification link sent","result":True}, status=status.HTTP_201_CREATED)
                 else:
-                    return Response({"message": f"Error sending email {email_sent}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                    return Response({"message": f"Error sending email {email_sent}","result":False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             except Exception as e:
                 return Response(
                     {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
         else:
             message = form.errors
-            return Response({"status": message})
+            return Response({"status": message,"result":False})
 
     @action(detail=True, methods=["GET"], url_path="getverificationlink")
     def getverificationlink(self, request, pk=None):
@@ -144,12 +145,12 @@ class AccountViewSet(viewsets.ModelViewSet):
         try:
             email_sent = send_email(subject=subject, content=body, to_emails=user.email)
             if email_sent == True:
-                return Response({"message": "Email verification link sent"}, status=status.HTTP_201_CREATED)
+                return Response({"message": "Email verification link sent","result":True}, status=status.HTTP_201_CREATED)
             else:
-                return Response({"message": f"Error sending email {email_sent}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response({"message": f"Error sending email {email_sent}","result":False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
             return Response(
-                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {"error": str(e),"result":False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
     @action(
@@ -174,7 +175,8 @@ class AccountViewSet(viewsets.ModelViewSet):
             message = "User verified"
         else:
             message = "error"
-        return Response({"status": message})
+        result = True if message == "User verified" else False
+        return Response({"status": message,"result":result})
 
     @action(detail=False, methods=["post", "GET"])
     def passwordchangerequest(self, request):
@@ -203,7 +205,7 @@ class AccountViewSet(viewsets.ModelViewSet):
         email_sent = send_email(subject=subject, content=body, to_emails=user.email)
         # message = 'Email verification link sent' if email_sent else "Error sending email"
         send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [user.email])
-        return Response({"statue": "Password reset link sent"})
+        return Response({"status": "Password reset link sent","result": True})
 
     @action(
         detail=False,
@@ -230,7 +232,7 @@ class AccountViewSet(viewsets.ModelViewSet):
                 message = "Invalid input"
         else:
             message = "Not authenticated"
-        return Response({"status": message})
+        return Response({"status": message,"result": True})
 
     @action(detail=True, methods=["POST"], url_path="passwordreset")
     def passwordreset(self, request, pk=None):
@@ -254,7 +256,7 @@ class AccountViewSet(viewsets.ModelViewSet):
         # if all checks are okay, set the new password
         user.set_password(new_password)
         user.save()
-        return Response({"success": "Password updated successfully"})
+        return Response({"success": "Password updated successfully","result": True})
 
     @action(detail=True, methods=["PUT", "PATCH"], url_path="edit-profile")
     def edit_profile(self, request, pk=None):
@@ -264,11 +266,11 @@ class AccountViewSet(viewsets.ModelViewSet):
         user = self.get_object()
         if not user:
             return Response(
-                {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
+                {"error": "User not found","result": False}, status=status.HTTP_404_NOT_FOUND
             )
 
         serializer = UserSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"data":serializer.data,"result": True})
+        return Response({"data":serializer.errors,"result":False}, status=status.HTTP_400_BAD_REQUEST)
