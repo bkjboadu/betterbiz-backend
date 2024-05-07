@@ -287,7 +287,7 @@ class AccountViewSet(viewsets.ModelViewSet):
             if business_id is not None:
                 business = Business.objects.get(id=business_id)
                 user.default_company = business
-                return Response({"message":"User default company changed"})
+                return Response({"message":"User default company changed","result":True})
         except:
-            return Response({"message":"Business not found"})
+            return Response({"message":"Business not found",,"result":False})
         
