@@ -59,7 +59,6 @@ class AccountViewSet(viewsets.ModelViewSet):
     def get_user_details(self, request):
         "This view is to get user details through the access token or refresh token in the headers"
         try:
-            print(request.headers)
             token = request.headers.get("Authorization").split(" ")[-1]
             decoded_token = AccessToken(token)
             user_id = decoded_token.get("user_id")
@@ -170,7 +169,6 @@ class AccountViewSet(viewsets.ModelViewSet):
             user = None
 
         if user and email_token_generator.check_token(user, token):
-            print(user)
             user.email_verified = True
             user.save()
             message = "User verified"
@@ -233,12 +231,6 @@ class AccountViewSet(viewsets.ModelViewSet):
         else:
             message = "Not authenticated"
         return Response({"status": message})
-
-    # @action(detail=True,methods=['POST'])
-    # def getemail(self,request,pk=None):
-    #     print("email is successfull")
-    #     print(request.data)
-    #     return Response({"status":'message'})
 
     @action(detail=True, methods=["POST"], url_path="passwordreset")
     def passwordreset(self, request, pk=None):

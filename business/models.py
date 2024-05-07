@@ -1,4 +1,6 @@
 from django.db import models
+from django.dispatch import receiver
+from django.db.models.signals import post_save
 from django.conf import settings
 import uuid
 from django.urls import reverse
@@ -38,6 +40,15 @@ class Business(models.Model):
 
     def get_absolute_url(self):
         return reverse("business-detail", kwargs={"pk": self.id})
+    
+
+@receiver(post_save,sender=Business)
+def set_default_company(sender,instance,created,**kwargs):
+    if created:
+        user = instance.user
+        if user and user.default_company is None:
+            user.default_company = instance
+            user.save()
 
 
 class BusinessScore(models.Model):

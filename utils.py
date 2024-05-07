@@ -15,8 +15,8 @@ def send_email(to_emails, subject, content, from_email=settings.DEFAULT_FROM_EMA
     )
     try:
         sg = SendGridAPIClient(os.getenv("SENDGRID_API_KEY"))
-        response = sg.send(message)
+        sg.send(message)
         return True
     except Exception as e:
-        print(e.message)
+        print(e)
         return False

@@ -50,9 +50,9 @@ class AIChatMessageViewSet(viewsets.ModelViewSet):
         #     return Response(response.json(), status=response.status_code)
 
     def create(self,request,*args,**kwargs):
-        # api_key = os.getenv('OPENAI_API_KEY')
+        api_key = os.getenv('OPENAI_API_KEY')
         # print(api_key)
-        api_key = "sk-proj-9odFjYa8Yy7Lt5jtCt00T3BlbkFJga8I8MyL6L8yjVk8CvCO"
+        # api_key = "sk-proj-9odFjYa8Yy7Lt5jtCt00T3BlbkFJga8I8MyL6L8yjVk8CvCO"
         
         if not api_key:
             return Response({'error': 'API key not configured.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

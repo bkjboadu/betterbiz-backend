@@ -1,6 +1,8 @@
 from django.db import models
 import uuid
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserManager
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils import timezone
 from business.models import Business
 
@@ -34,6 +36,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=100, blank=True)
     avatar = models.ImageField(upload_to="user_avatars", blank=True, null=True)
 
+    default_company = models.ForeignKey(
+        Business,
+        related_name="defaulted_by",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
