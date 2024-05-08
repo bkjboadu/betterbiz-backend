@@ -1,6 +1,18 @@
 from rest_framework import serializers
 from .models import User
 from business.serializer import BusinessSerializer
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework.exceptions import AuthenticationFailed
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        try:
+            data = super().validate(attrs)
+            data['result'] = True
+            return data
+        except AuthenticationFailed as e:
+            # Customize the error message key here
+            raise AuthenticationFailed({'message': str(e),'result':False})
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -13,3 +25,4 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_has_companies(self,obj):
         return obj.has_companies
+

@@ -25,11 +25,12 @@ from django.shortcuts import render, redirect, reverse
 from django.core.mail import send_mail
 from .models import User
 from django.contrib.auth.forms import SetPasswordForm
-from .serializer import UserSerializer
+from .serializer import UserSerializer,CustomTokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import AccessToken
 from business.models import Business, BusinessScore
 from rest_framework.permissions import IsAuthenticated
 from business.serializer import BusinessSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
 from utils import send_email
 
 
@@ -46,6 +47,8 @@ class PasswordChangeGenerator(PasswordResetTokenGenerator):
 email_token_generator = EmailTokenGenerator()
 password_change_token_generator = PasswordChangeGenerator()
 
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
 
 class AccountViewSet(viewsets.ModelViewSet):
     """This ViewSet is for managing user account,verification and security as a whole"""
@@ -123,7 +126,7 @@ class AccountViewSet(viewsets.ModelViewSet):
                 )
         else:
             message = form.errors
-            return Response({"status": message,"result":False})
+            return Response({"message": message,"result":False})
 
     @action(detail=True, methods=["GET"], url_path="getverificationlink")
     def getverificationlink(self, request, pk=None):
