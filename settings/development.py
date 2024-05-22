@@ -17,16 +17,7 @@ ALLOWED_HOSTS = [
     # Add any other hosts you need
 ]
 
-SOCIALACCOUNT_PROVIDERS = {
-    'quickbooks': {
-        'APP': {
-            'client_id': 'ABiMYuCAE8GQ2V417AnfP4hKtuU2d2VCx1oRgqz5LntaOaG4Z8',
-            'secret': 'tZ3g3VYHignJKSaP47hBVx4fpgruZ3xuyrKJnWzw',
-            'redirect_uri': 'https://fa92-2604-3d09-6a77-4d00-c84a-7f02-602d-5b0d.ngrok-free.app/quickbooks/callback/',
-            'key': ''
-        }
-    }
-}
+
 
 
 DATABASES = {
