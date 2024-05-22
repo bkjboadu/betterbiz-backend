@@ -8,4 +8,3 @@ class AIChatMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = BettyChatMessage
         fields = "__all__"
-

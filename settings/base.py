@@ -17,7 +17,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Application definition
 
-AUTH_USER_MODEL = "account.User"
+AUTH_USER_MODEL = "user_account.User"
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=30),
@@ -28,19 +28,17 @@ SIMPLE_JWT = {
 ## quickbooks
 
 
-QUICKBOOKS_CLIENT_ID = os.getenv("QUICKBOOKS_CLIENT_ID")
-QUICKBOOKS_CLIENT_SECRET = os.getenv("QUICKBOOKS_CLIENT_SECRET")
-QUICKBOOKS_REDIRECT_URI = os.getenv("QUICKBOOKS_REDIRECT_URI")
+# QUICKBOOKS_CLIENT_ID = os.getenv("QUICKBOOKS_CLIENT_ID")
+# QUICKBOOKS_CLIENT_SECRET = os.getenv("QUICKBOOKS_CLIENT_SECRET")
+# QUICKBOOKS_REDIRECT_URI = os.getenv("QUICKBOOKS_REDIRECT_URI")
 
-# OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+# settings.py
+
+QUICKBOOKS_CLIENT_ID = "ABiMYuCAE8GQ2V417AnfP4hKtuU2d2VCx1oRgqz5LntaOaG4Z8"
+QUICKBOOKS_CLIENT_SECRET = "tZ3g3VYHignJKSaP47hBVx4fpgruZ3xuyrKJnWzw"
+QUICKBOOKS_REDIRECT_URI = "https://developer.intuit.com/v2/OAuth2Playground/RedirectUrl"
 
 
-# EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-# EMAIL_HOST = "smtp.sendgrid.net"
-# EMAIL_HOST_USER = "apikey"
-# EMAIL_HOST_PASSWORD = os.getenv("SENDGRID_API_KEY")
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = "bright@betterbizscore.com"
 
 REST_FRAMEWORK = {
@@ -56,7 +54,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://betterbiz.thelendingline.com",
 ]
 
-CSRF_TRUSTED_ORIGINS = ["http://localhost:5173", "https://betterbiz.thelendingline.com"]
+CSRF_TRUSTED_ORIGINS = ["http://localhost:5173", "https://betterbiz.thelendingline.com","https://105b-2604-3d09-6a77-4d00-74d3-cc37-d84f-af07.ngrok-free.app"]
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 INSTALLED_APPS = [
@@ -69,13 +67,40 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "corsheaders",
-    "account",
+    "allauth",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.oauth2",
+    "allauth.account",
+    "user_account",
     "questionnaire",
     "payment",
     "business",
     "chat",
+    "miners",
 ]
 
+SOCIALACCOUNT_PROVIDERS = {
+    'quickbooks': {
+        'APP': {
+            'client_id': 'ABiMYuCAE8GQ2V417AnfP4hKtuU2d2VCx1oRgqz5LntaOaG4Z8',
+            'secret': 'tZ3g3VYHignJKSaP47hBVx4fpgruZ3xuyrKJnWzw',
+            'redirect_uri': 'https://105b-2604-3d09-6a77-4d00-74d3-cc37-d84f-af07.ngrok-free.app/quickbooks/callback/',
+            'key': ''
+        }
+    }
+}
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+
+
+SITE_ID = 1
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+)
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -87,6 +112,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = "betterbiz.urls"
@@ -161,4 +187,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 MEDIA_URL = "/media/"
 
-LOGIN_REDIRECT_URL = "/login"
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"

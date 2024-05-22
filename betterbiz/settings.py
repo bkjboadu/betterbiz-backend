@@ -61,9 +61,18 @@ INSTALLED_APPS = [
     "questionnaire",
     "payment",
     "business",
-    "api_miners",
 ]
 
+SITE_ID = 1
+
+AUTHENTICATION_BACKENDS = ("django.contrib.auth.backends.ModelBackend",)
+
+# LOGIN_REDIRECT_URL = '/'
+# ACCOUNT_LOGOUT_REDIRECT_URL = '/'
+# ACCOUNT_EMAIL_REQUIRED = True
+# ACCOUNT_USERNAME_REQUIRED = False
+# ACCOUNT_AUTHENTICATION_METHOD = 'email'
+# ACCOUNT_EMAIL_VERIFICATION = 'optional'
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

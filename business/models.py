@@ -10,7 +10,7 @@ class Business(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     name = models.CharField(max_length=255)
     user = models.ForeignKey(
-        "account.User",
+        "user_account.User",
         related_name="business",
         on_delete=models.CASCADE,
         null=True,
@@ -40,10 +40,10 @@ class Business(models.Model):
 
     def get_absolute_url(self):
         return reverse("business-detail", kwargs={"pk": self.id})
-    
 
-@receiver(post_save,sender=Business)
-def set_default_company(sender,instance,created,**kwargs):
+
+@receiver(post_save, sender=Business)
+def set_default_company(sender, instance, created, **kwargs):
     if created:
         user = instance.user
         if user and user.default_company is None:
@@ -53,10 +53,11 @@ def set_default_company(sender,instance,created,**kwargs):
 
 class BusinessScore(models.Model):
     id = models.UUIDField(default=uuid.uuid4, primary_key=True)
+    user = models.ForeignKey("user_account.User",related_name='business_score',on_delete=models.CASCADE,null=True,blank=True)
     business = models.ForeignKey(
         Business, related_name="score", on_delete=models.CASCADE
     )
-    score = models.IntegerField()
+    score = models.IntegerField(null=True,blank=True)
     date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
     def __str__(self):

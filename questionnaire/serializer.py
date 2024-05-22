@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import SpecificQuestion, Category, Industry, AnswerOption, UserResponse
+from .models import Questions, Industry, UserResponse
 
 
 class IndustrySerializer(serializers.ModelSerializer):
@@ -7,25 +7,35 @@ class IndustrySerializer(serializers.ModelSerializer):
         model = Industry
         fields = "__all__"
 
-
-class AnswerOptionSerializer(serializers.ModelSerializer):
+class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = AnswerOption
-        fields = ["id", "option_text", "points"]
+        model = Questions
+        fields = '__all__'
 
-
-class SpecificQuestionSerializer(serializers.ModelSerializer):
-    answer_options = AnswerOptionSerializer(many=True, read_only=True)
-
+class UserResponseSerializer(serializers.ModelSerializer):
     class Meta:
-        model = SpecificQuestion
-        fields = ["id", "question", "description", "answer_options"]
+        model = UserResponse
+        fields = ['business','responses','time']
+        read_only_fields = ['time']
+
+# class AnswerOptionSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = AnswerOption
+#         fields = ["id", "option_text", "points"]
 
 
-class CategorySerializer(serializers.ModelSerializer):
-    category = serializers.CharField(source="name")
-    questions = SpecificQuestionSerializer(many=True, read_only=True)
+# class SpecificQuestionSerializer(serializers.ModelSerializer):
+#     answer_options = AnswerOptionSerializer(many=True, read_only=True)
 
-    class Meta:
-        model = Category
-        fields = ["id", "category", "questions"]
+#     class Meta:
+#         model = SpecificQuestion
+#         fields = ["id", "question", "description", "answer_options"]
+
+
+# class CategorySerializer(serializers.ModelSerializer):
+#     category = serializers.CharField(source="name")
+#     questions = SpecificQuestionSerializer(many=True, read_only=True)
+
+#     class Meta:
+#         model = Category
+#         fields = ["id", "category", "questions"]

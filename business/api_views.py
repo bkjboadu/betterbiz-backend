@@ -15,8 +15,7 @@ from django.forms.models import model_to_dict
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
-from account.models import User
-from shared.base_viewsets import CustomBaseViewSet
+from user_account.models import User
 
 
 class BusinessViewset(viewsets.ModelViewSet):
@@ -63,3 +62,15 @@ class BusinessViewset(viewsets.ModelViewSet):
         business = Business.objects.filter(user=user)
         business_serializer = BusinessSerializer(business, many=True)
         return Response({"businesses": business_serializer.data})
+
+    def retrieve(self,request,*args,**kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        business_data = serializer.data
+
+
+        business_scores = BusinessScore.objects.filter(business=instance)
+        score_serializer = BusinessScoreSerializer(business_scores,many=True)
+
+        business_data['scores'] = score_serializer.data
+        return Response(business_data)

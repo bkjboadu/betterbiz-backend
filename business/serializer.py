@@ -6,7 +6,7 @@ from questionnaire.models import Industry
 class BusinessScoreSerializer(serializers.ModelSerializer):
     class Meta:
         model = BusinessScore
-        fields = "__all__"
+        fields = ['id','score','date']
 
 
 class BusinessSerializer(serializers.ModelSerializer):
