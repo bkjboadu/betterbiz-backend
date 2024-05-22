@@ -91,6 +91,9 @@ class UserResponseViewSet(viewsets.ModelViewSet):
         user_response.responses = request.data.get('responses',user_response)
         user_response.save()
 
+        business.has_completed_questionnaire = True
+        business.save()
+
         
         total_score = self.calculate_total_score(user_response.responses)
 

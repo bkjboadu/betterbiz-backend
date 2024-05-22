@@ -32,6 +32,8 @@ class Business(models.Model):
     twitter_url = models.URLField(blank=True, null=True)
     linkedin_url = models.URLField(blank=True, null=True)
 
+    has_completed_questionnaire = models.BooleanField(null=True,blank=True)
+
     legal_status = models.CharField(max_length=100, blank=True, null=True)
     tax_id = models.CharField(max_length=100, blank=True, null=True)
 
