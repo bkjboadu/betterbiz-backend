@@ -50,7 +50,7 @@ REST_FRAMEWORK = {
 }
 
 CORS_ALLOWED_ORIGINS = [
-    "https://betterbiz.thelendingline.com","http://localhost:5173","127.0.0.1",'localhost'
+    "https://betterbiz.thelendingline.com","http://localhost:5173"
 ]
 
 CSRF_TRUSTED_ORIGINS = ["https://betterbiz.thelendingline.com",'https://betterbiz-ffe47fd6d1ed.herokuapp.com','https://fa92-2604-3d09-6a77-4d00-c84a-7f02-602d-5b0d.ngrok-free.app','http://localhost:5173']
