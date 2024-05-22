@@ -12,11 +12,15 @@ logger = logging.getLogger(__name__)
 
 @login_required
 def quickbooks_login(request):
+    print('Quicbooks login initiated')
+    logger.debug('Quickbooks login initiated')
     authorization_url = "https://appcenter.intuit.com/connect/oauth2"
     client_id = settings.SOCIALACCOUNT_PROVIDERS['quickbooks']['APP']['client_id']
     redirect_uri = settings.SOCIALACCOUNT_PROVIDERS['quickbooks']['APP']['redirect_uri']
     scope = "com.intuit.quickbooks.accounting"
     state = secrets.token_urlsafe(16)
+
+    print(redirect_uri)
 
     params = {
         "client_id": client_id,
@@ -27,6 +31,7 @@ def quickbooks_login(request):
     }
 
     login_url = requests.Request('GET', authorization_url, params=params).prepare().url
+    print(login_url)
     return redirect(login_url)
 
 @login_required
@@ -43,6 +48,7 @@ def quickbooks_callback(request):
     redirect_uri = settings.SOCIALACCOUNT_PROVIDERS['quickbooks']['APP']['redirect_uri']
 
     auth = (client_id, client_secret)
+    print('auth',auth)
     headers = {'Accept': 'application/json'}
     data = {
         'grant_type': 'authorization_code',
@@ -52,6 +58,7 @@ def quickbooks_callback(request):
 
     response = requests.post(token_url, auth=auth, headers=headers, data=data)
     tokens = response.json()
+    print(tokens)
 
     # Save tokens to the database
     QuickBooksToken.objects.update_or_create(

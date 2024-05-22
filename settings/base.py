@@ -50,12 +50,13 @@ REST_FRAMEWORK = {
 }
 
 CORS_ALLOWED_ORIGINS = [
-    " http://localhost:5173",
     "https://betterbiz.thelendingline.com",
 ]
 
-CSRF_TRUSTED_ORIGINS = ["http://localhost:5173", "https://betterbiz.thelendingline.com",'https://c662-2604-3d09-6a77-4d00-1d33-adc7-ef29-c6d0.ngrok-free.app']
+CSRF_TRUSTED_ORIGINS = ["https://betterbiz.thelendingline.com",'https://betterbiz-ffe47fd6d1ed.herokuapp.com','https://fa92-2604-3d09-6a77-4d00-c84a-7f02-602d-5b0d.ngrok-free.app']
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -79,16 +80,7 @@ INSTALLED_APPS = [
     "miners",
 ]
 
-SOCIALACCOUNT_PROVIDERS = {
-    'quickbooks': {
-        'APP': {
-            'client_id': 'ABiMYuCAE8GQ2V417AnfP4hKtuU2d2VCx1oRgqz5LntaOaG4Z8',
-            'secret': 'tZ3g3VYHignJKSaP47hBVx4fpgruZ3xuyrKJnWzw',
-            'redirect_uri': 'https://c662-2604-3d09-6a77-4d00-1d33-adc7-ef29-c6d0.ngrok-free.app/quickbooks/callback/',
-            'key': ''
-        }
-    }
-}
+
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
