@@ -31,6 +31,7 @@ def quickbooks_login(request):
     }
 
     login_url = requests.Request('GET', authorization_url, params=params).prepare().url
+    # return redirect('https://betterbiz.thelendingline.com/dashboard')
     print(login_url)
     return redirect(login_url)
 
@@ -73,7 +74,8 @@ def quickbooks_callback(request):
         }
     )
 
-    return JsonResponse(tokens)
+    # return JsonResponse(tokens)
+    return redirect('https://betterbiz.thelendingline.com/dashboard')
 
 def refresh_quickbooks_token(user):
     token = QuickBooksToken.objects.get(user=user)
