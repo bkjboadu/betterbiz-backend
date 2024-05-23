@@ -94,8 +94,13 @@ class UserResponseViewSet(viewsets.ModelViewSet):
         business.has_completed_questionnaire = True
         business.save()
 
+        total_score = 0
+
+        try:
+            total_score = self.calculate_total_score(user_response.responses)
+        except:
+            pass
         
-        total_score = self.calculate_total_score(user_response.responses)
 
         business_instance,created = BusinessScore.objects.get_or_create(user=user,business=business)
         business_instance.score = total_score
