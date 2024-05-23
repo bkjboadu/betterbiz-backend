@@ -12,4 +12,4 @@ class QuickBooksToken(models.Model):
     quickbooks_data = models.JSONField(null=True,blank=True)
 
     def __str__(self):
-        return f"{self.user.username}'s QuickBooks Token"
+        return f"{self.user.email}'s QuickBooks Token"
