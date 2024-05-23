@@ -16,12 +16,14 @@ class Industry(models.Model):
     
 class Questions(models.Model):
     questions = models.JSONField(null=True,blank=True)
+    number_of_questions = models.IntegerField(null=True,blank=True)
     time = models.DateTimeField(auto_now_add=True,null=True)
 
     def save(self,*args,**kwargs):
         if Questions.objects.exists():
             existing = Questions.objects.first()
             existing.questions = self.questions
+            existing.number_of_questions = self.number_of_questions
             existing.time = timezone.now()
             super(Questions,existing).save(*args,**kwargs)
         else:
@@ -34,4 +36,5 @@ class UserResponse(models.Model):
     )
     responses = models.JSONField(null=True,blank=True)
     time = models.DateTimeField(auto_now_add=True)
+    ratio_completed = models.CharField(null=True,blank=True,max_length=30)
 

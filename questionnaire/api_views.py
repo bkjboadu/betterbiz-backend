@@ -12,6 +12,9 @@ from user_account.models import User
 from rest_framework.response import Response
 from django.utils import timezone
 
+def calculate_percentage_of_questions_answered(response):
+    return len(response.keys())
+
 
 
 class IsSuperUser(permissions.BasePermission):
@@ -38,22 +41,35 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
     def create(self,request,*args,**kwargs):
         data = request.data
-
+        
+        number_of_questions = calculate_percentage_of_questions_answered(data.get('questions'))
+        
         if Questions.objects.exists():
             question_instance = Questions.objects.first()
             question_instance.questions = data.get('questions',question_instance.questions)
+            question_instance.number_of_questions = number_of_questions
+            print(number_of_questions)
             question_instance.time = timezone.now()
             question_instance.save()
             serializers = self.get_serializer(question_instance)
             return Response(serializers.data)
         else:
-            return super().create(request,*args,**kwargs)
+            data['number_of_questions'] = number_of_questions
+            data['time'] = timezone.now()
+            serializer = self.get_serializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+            # print(data)
+            # return super().create(request,*args,**kwargs)
 
 class UserResponseViewSet(viewsets.ModelViewSet):
     queryset = UserResponse.objects.all()
     serializer_class = UserResponseSerializer
     permission_classes = []
     authentication_classes = []
+        
 
     def calculate_total_score(self, responses):
         total_score = 0
@@ -86,9 +102,12 @@ class UserResponseViewSet(viewsets.ModelViewSet):
         except Business.DoesNotExist:
             return Response({'message':"Business not found"},status=status.HTTP_400_BAD_REQUEST)
         
+        total_question_to_answer = Questions.objects.first().number_of_questions
         
         user_response,created = UserResponse.objects.get_or_create(user=user,business=business)
         user_response.responses = request.data.get('responses',user_response)
+        total_question_answered = calculate_percentage_of_questions_answered(user_response.responses)
+        user_response.ratio_completed = f"{total_question_answered}/{total_question_to_answer}"
         user_response.save()
 
         business.has_completed_questionnaire = True
