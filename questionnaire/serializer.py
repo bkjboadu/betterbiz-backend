@@ -1,5 +1,8 @@
 from rest_framework import serializers
 from .models import Questions, Industry, UserResponse
+from rest_framework import serializers
+from rest_framework.response import Response
+
 
 
 class IndustrySerializer(serializers.ModelSerializer):
@@ -12,10 +15,11 @@ class QuestionSerializer(serializers.ModelSerializer):
         model = Questions
         fields = '__all__'
 
+
 class UserResponseSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserResponse
-        fields = ['business','responses','time']
+        fields = ['business','responses','time','ratio_completed']
         read_only_fields = ['time']
 
 # class AnswerOptionSerializer(serializers.ModelSerializer):
