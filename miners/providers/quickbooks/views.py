@@ -74,7 +74,10 @@ def quickbooks_callback(request):
         }
     )
 
-    return JsonResponse(tokens)
+    query_string = request.META['QUERY_STRING']
+    dashboard_url = f"https://betterbiz.thelendingline.com/dashboard/?{query_string}"
+    return redirect(dashboard_url)
+    # return JsonResponse(tokens)
     # return redirect('https://betterbiz.thelendingline.com/dashboard')
 
 def refresh_quickbooks_token(user):
