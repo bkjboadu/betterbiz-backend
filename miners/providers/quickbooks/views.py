@@ -61,9 +61,11 @@ def quickbooks_callback(request):
     tokens = response.json()
     print(tokens)
 
+    user = request.user
+
     # Save tokens to the database
     QuickBooksToken.objects.update_or_create(
-        user=request.user,
+        user=user,
         defaults={
             'access_token': tokens['access_token'],
             'refresh_token': tokens['refresh_token'],
@@ -73,6 +75,9 @@ def quickbooks_callback(request):
             'realm_id': realm_id
         }
     )
+
+    user.quickbooks = True
+    user.save()
 
     query_string = request.META['QUERY_STRING']
     dashboard_url = f"https://betterbiz.thelendingline.com/dashboard/?{query_string}"
