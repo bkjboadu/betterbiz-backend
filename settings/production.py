@@ -8,7 +8,7 @@ DEBUG = True
 
 # ALLOWED_HOSTS = []
 
-ALLOWED_HOSTS = ["betterbiz-ffe47fd6d1ed.herokuapp.com", "localhost", "127.0.0.1",]
+ALLOWED_HOSTS = ["betterbiz-ffe47fd6d1ed.herokuapp.com", "localhost", "127.0.0.1","http://localhost:5173","f2eb-2604-3d09-6a77-4d00-295a-6d37-1eef-af5.ngrok-free.app"]
 
 
 # DATABASES = {"default": dj_database_url.config(default=os.environ.get("JAWSDB_URL"))}

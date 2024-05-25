@@ -34,10 +34,6 @@ SIMPLE_JWT = {
 
 # settings.py
 
-QUICKBOOKS_CLIENT_ID = "ABiMYuCAE8GQ2V417AnfP4hKtuU2d2VCx1oRgqz5LntaOaG4Z8"
-QUICKBOOKS_CLIENT_SECRET = "tZ3g3VYHignJKSaP47hBVx4fpgruZ3xuyrKJnWzw"
-QUICKBOOKS_REDIRECT_URI = "https://developer.intuit.com/v2/OAuth2Playground/RedirectUrl"
-
 
 DEFAULT_FROM_EMAIL = "bright@betterbizscore.com"
 
@@ -53,7 +49,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://betterbiz.thelendingline.com","http://localhost:5173"
 ]
 
-CSRF_TRUSTED_ORIGINS = ["https://betterbiz.thelendingline.com",'https://betterbiz-ffe47fd6d1ed.herokuapp.com','https://fa92-2604-3d09-6a77-4d00-c84a-7f02-602d-5b0d.ngrok-free.app','http://localhost:5173']
+CSRF_TRUSTED_ORIGINS = ["https://betterbiz.thelendingline.com",'https://betterbiz-ffe47fd6d1ed.herokuapp.com','https://f062-2604-3d09-6a77-4d00-a562-7873-b246-64d7.ngrok-free.app','http://localhost:5173']
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 SOCIALACCOUNT_PROVIDERS = {
@@ -62,7 +58,7 @@ SOCIALACCOUNT_PROVIDERS = {
             'client_id': 'ABiMYuCAE8GQ2V417AnfP4hKtuU2d2VCx1oRgqz5LntaOaG4Z8',
             'secret': 'tZ3g3VYHignJKSaP47hBVx4fpgruZ3xuyrKJnWzw',
             'redirect_uri': 'https://betterbiz-ffe47fd6d1ed.herokuapp.com/quickbooks/callback/',
-            # 'redirect_uri':"https://fa92-2604-3d09-6a77-4d00-c84a-7f02-602d-5b0d.ngrok-free.app/quickbooks/callback/" ,
+            # 'redirect_uri':"https://f062-2604-3d09-6a77-4d00-a562-7873-b246-64d7.ngrok-free.app/quickbooks/callback/" ,
             'key': ''
         }
     }

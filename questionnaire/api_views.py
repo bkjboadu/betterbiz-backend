@@ -13,7 +13,8 @@ from rest_framework.response import Response
 from django.utils import timezone
 
 def calculate_percentage_of_questions_answered(response):
-    return len(response.keys())
+    question_count = len(response['questions_with_no_scores']) + len(response['questions_to_score'])
+    return question_count
 
 
 
@@ -42,13 +43,14 @@ class QuestionViewSet(viewsets.ModelViewSet):
     def create(self,request,*args,**kwargs):
         data = request.data
         
+        
         number_of_questions = calculate_percentage_of_questions_answered(data.get('questions'))
+        
         
         if Questions.objects.exists():
             question_instance = Questions.objects.first()
             question_instance.questions = data.get('questions',question_instance.questions)
             question_instance.number_of_questions = number_of_questions
-            print(number_of_questions)
             question_instance.time = timezone.now()
             question_instance.save()
             serializers = self.get_serializer(question_instance)
@@ -69,15 +71,14 @@ class UserResponseViewSet(viewsets.ModelViewSet):
     serializer_class = UserResponseSerializer
     permission_classes = []
     authentication_classes = []
-        
 
-    def calculate_total_score(self, responses):
+    def calculate_total_score(self,response):
         total_score = 0
-        for category, questions in responses.items():
-            for question, answers in questions.items():
-                for answer in answers:
-                    total_score += answer.get('score', 0)
+        for question, answers in response["questions_to_score"].items():
+            for answer in answers:
+                total_score += list(answer.values())[0]
         return total_score
+
 
     @action(detail=False,methods=['POST'])
     def receive_response(self,request):
@@ -115,9 +116,11 @@ class UserResponseViewSet(viewsets.ModelViewSet):
 
         total_score = 0
 
+        
         try:
             total_score = self.calculate_total_score(user_response.responses)
-        except:
+        except Exception as e:
+            print(e)
             pass
         
 
