@@ -75,7 +75,11 @@ class UserResponseViewSet(viewsets.ModelViewSet):
     def calculate_total_score(self,response):
         total_score = 0
         for question, answers in response["questions_to_score"].items():
-            total_score += float(answers)
+            try:
+                point = float(answers)
+            except:
+                point = 0
+            total_score += point
         return total_score
 
 
