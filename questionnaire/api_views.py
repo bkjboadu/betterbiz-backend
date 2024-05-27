@@ -81,6 +81,7 @@ class UserResponseViewSet(viewsets.ModelViewSet):
                 point = 0
             total_score += point
         return total_score
+    
 
 
     @action(detail=False,methods=['POST'])
@@ -136,4 +137,34 @@ class UserResponseViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(user_response)
         
         return Response(serializer.data,status=status.HTTP_201_CREATED)
+    
+    @action(detail=False, methods=['GET'])
+    def receive_response(self, request):
+        try:
+            token = request.headers.get("Authorization").split(" ")[-1]
+            decoded_token = AccessToken(token)
+            user_id = decoded_token.get("user_id")
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({"message": 'User not in system'}, status=status.HTTP_404_NOT_FOUND)
+
+        if not user.is_authenticated:
+            return Response({'message': 'User must be authenticated'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        business_id = request.query_params.get('business')
+        if not business_id:
+            return Response({'message': "Business ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            business = Business.objects.get(id=business_id)
+        except Business.DoesNotExist:
+            return Response({'message': "Business not found"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user_response = UserResponse.objects.get(business=business)
+            serializer = UserResponseSerializer(user_response)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except UserResponse.DoesNotExist:
+            return Response({'message': "UserResponse not found"}, status=status.HTTP_404_NOT_FOUND)
+
  
