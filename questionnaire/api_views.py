@@ -17,7 +17,7 @@ def calculate_percentage_of_questions_answered(response):
     for key,value in response['questions_to_score'].items():
         if value != "":
             answered_question += 1
-    return answered_question
+    return answered_question 
     
 
 
@@ -111,7 +111,7 @@ class UserResponseViewSet(viewsets.ModelViewSet):
         except Business.DoesNotExist:
             return Response({'message':"Business not found"},status=status.HTTP_400_BAD_REQUEST)
         
-        total_question_to_answer = Questions.objects.first().number_of_questions
+        total_question_to_answer = Questions.objects.first().number_of_questions 
         
         user_response,created = UserResponse.objects.get_or_create(user=user,business=business)
         user_response.responses = request.data.get('responses',user_response)
@@ -120,7 +120,10 @@ class UserResponseViewSet(viewsets.ModelViewSet):
         user_response.ratio_completed = f"{total_question_answered}/{total_question_to_answer}"
         user_response.save()
 
-        business.has_completed_questionnaire = True
+        if total_question_answered == total_question_to_answer:
+            business.has_completed_questionnaire = True
+        else:
+            business.has_completed_questionnaire = False
         business.save()
 
         total_score = 0
