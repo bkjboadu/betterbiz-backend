@@ -13,7 +13,11 @@ from rest_framework.response import Response
 from django.utils import timezone
 
 def calculate_percentage_of_questions_answered(response):
-    return len(response['questions_to_score'])
+    answered_question = 0
+    for key,value in response['questions_to_score'].items():
+        if value != "":
+            answered_question += 1
+    return answered_question
     
 
 
@@ -112,6 +116,7 @@ class UserResponseViewSet(viewsets.ModelViewSet):
         user_response,created = UserResponse.objects.get_or_create(user=user,business=business)
         user_response.responses = request.data.get('responses',user_response)
         total_question_answered = calculate_percentage_of_questions_answered(user_response.responses)
+        print(total_question_answered)
         user_response.ratio_completed = f"{total_question_answered}/{total_question_to_answer}"
         user_response.save()
 
@@ -139,7 +144,7 @@ class UserResponseViewSet(viewsets.ModelViewSet):
         return Response(serializer.data,status=status.HTTP_201_CREATED)
     
     @action(detail=False, methods=['GET'])
-    def receive_response(self, request):
+    def get_response(self, request):
         try:
             token = request.headers.get("Authorization").split(" ")[-1]
             decoded_token = AccessToken(token)
