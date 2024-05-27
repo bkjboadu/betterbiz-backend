@@ -13,8 +13,8 @@ from rest_framework.response import Response
 from django.utils import timezone
 
 def calculate_percentage_of_questions_answered(response):
-    question_count = len(response['questions_with_no_scores']) + len(response['questions_to_score'])
-    return question_count
+    return len(response['questions_to_score'])
+    
 
 
 
@@ -75,8 +75,7 @@ class UserResponseViewSet(viewsets.ModelViewSet):
     def calculate_total_score(self,response):
         total_score = 0
         for question, answers in response["questions_to_score"].items():
-            for answer in answers:
-                total_score += list(answer.values())[0]
+            total_score += float(answers)
         return total_score
 
 
