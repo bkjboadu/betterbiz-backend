@@ -11,6 +11,14 @@ from business.models import Business
 
 logger = logging.getLogger(__name__)
 
+def check_company_match(x,y):
+    name_x = [s.lower() for s in x.split()]
+    name_y = [s.lower(0 for s in y.split())]
+    if set(name_x) & set(name_y):
+        return True
+    else:
+        return False
+
 @login_required
 def quickbooks_login(request):
     print('Quickbooks login initiated')
@@ -68,6 +76,7 @@ def quickbooks_callback(request):
 
     response = requests.post(token_url, auth=auth, headers=headers, data=data)
     tokens = response.json()
+    access_token = tokens.get('access_token')
     
 
     user = request.user
@@ -82,7 +91,7 @@ def quickbooks_callback(request):
     QuickBooksToken.objects.update_or_create(
         user=user,
         defaults={
-            'access_token': tokens['access_token'],
+            'access_token': access_token,
             'refresh_token': tokens['refresh_token'],
             'token_type': tokens['token_type'],
             'expires_in': tokens['expires_in'],
@@ -90,6 +99,44 @@ def quickbooks_callback(request):
             'realm_id': realm_id
         }
     )
+
+    url = 'https://sandbox-quickbooks.api.intuit.com/v3/company/9341451981840406/query?minorversion=70'
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Accept': 'application/json',
+        'Content-Type': 'application/text',
+        'User-Agent': 'QBOV3-OAuth2-Postman-Collection'
+    }
+
+    payload  = 'select * from vendor startposition 1 maxresults 5'
+
+    response = requests.post(url, headers=headers,data=payload)
+
+    data = response.json()
+    
+    print(data.get('QueryResponse'))
+    # print(query)
+    # query_response = data.get('QueryResponse')
+    # print(query_response)
+
+
+    
+
+    # same_company = False
+
+    # for vendor in query_response['Vendor']:
+    #     company_name = vendor.get('CompanyName')
+    #     print(company_name)
+
+    #     if check_company_match(company_name,business.name):
+    #         print(True)
+            
+    # print(data.get('QueryResponse'))
+
+
+    # if response.status_code == 200:
+    #     data = response.json()
+    #     print(data)
 
     
 
