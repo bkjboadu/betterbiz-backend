@@ -72,7 +72,8 @@ def quickbooks_callback(request):
             'token_type': tokens['token_type'],
             'expires_in': tokens['expires_in'],
             'x_refresh_token_expires_in': tokens['x_refresh_token_expires_in'],
-            'realm_id': realm_id
+            'realm_id': realm_id,
+            'is_connected': True
         }
     )
 
@@ -117,6 +118,9 @@ def get_quickbooks_company_info(request):
         token = QuickBooksToken.objects.get(user=request.user)
     except QuickBooksToken.DoesNotExist:
         return JsonResponse({'error': 'No QuickBooks token found for user'}, status=400)
+
+    if not token.is_connected:
+        return JsonResponse({'error': 'QuickBooks is not connected for this user'}, status=400)
     
     print(request.user)
 
@@ -159,6 +163,9 @@ def sync_quickbooks_customers(request):
         token = QuickBooksToken.objects.get(user=request.user)
     except QuickBooksToken.DoesNotExist:
         return JsonResponse({'error': 'No QuickBooks token found for user'}, status=400)
+
+    if not token.is_connected:
+        return JsonResponse({'error': 'QuickBooks is not connected for this user'}, status=400)
 
     access_token = token.access_token
     realm_id = token.realm_id  # Retrieve the stored realm_id
