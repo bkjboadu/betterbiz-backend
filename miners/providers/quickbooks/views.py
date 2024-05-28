@@ -7,41 +7,50 @@ from django.contrib.auth.decorators import login_required
 from miners.models import QuickBooksToken
 import secrets
 import logging
+from business.models import Business
 
 logger = logging.getLogger(__name__)
 
 @login_required
 def quickbooks_login(request):
-    print('Quicbooks login initiated')
+    print('Quickbooks login initiated')
     logger.debug('Quickbooks login initiated')
     authorization_url = "https://appcenter.intuit.com/connect/oauth2"
     client_id = settings.SOCIALACCOUNT_PROVIDERS['quickbooks']['APP']['client_id']
     redirect_uri = settings.SOCIALACCOUNT_PROVIDERS['quickbooks']['APP']['redirect_uri']
     scope = "com.intuit.quickbooks.accounting"
     state = secrets.token_urlsafe(16)
+    business_id = request.GET.get('business_id')
 
-    print(redirect_uri)
+    if not business_id:
+        return JsonResponse({'error': 'business_id is required'}, status=400)
 
     params = {
         "client_id": client_id,
         "response_type": "code",
         "scope": scope,
         "redirect_uri": redirect_uri,
-        "state": state
+        "state": f"{state}|{business_id}", 
     }
 
+
     login_url = requests.Request('GET', authorization_url, params=params).prepare().url
-    # return redirect('https://betterbiz.thelendingline.com/dashboard')
-    print(login_url)
     return redirect(login_url)
+
 
 @login_required
 def quickbooks_callback(request):
-    print('It connected')
     logger.debug('Callback received')
     code = request.GET.get('code')
     state = request.GET.get('state')
     realm_id = request.GET.get('realmId')
+
+    state_parts = state.split('|')
+    business_id = state_parts[1]
+
+    if not business_id:
+        return JsonResponse({'error': 'business_id is required'}, status=400)
+    
 
     token_url = "https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer"
     client_id = settings.SOCIALACCOUNT_PROVIDERS['quickbooks']['APP']['client_id']
@@ -49,7 +58,7 @@ def quickbooks_callback(request):
     redirect_uri = settings.SOCIALACCOUNT_PROVIDERS['quickbooks']['APP']['redirect_uri']
 
     auth = (client_id, client_secret)
-    print('auth',auth)
+    
     headers = {'Accept': 'application/json'}
     data = {
         'grant_type': 'authorization_code',
@@ -59,9 +68,15 @@ def quickbooks_callback(request):
 
     response = requests.post(token_url, auth=auth, headers=headers, data=data)
     tokens = response.json()
-    print(tokens)
+    
 
     user = request.user
+    business = Business.objects.get(id=business_id)
+
+    business.has_connected_quickbooks = True
+    business.save()
+
+    
 
     # Save tokens to the database
     QuickBooksToken.objects.update_or_create(
@@ -76,14 +91,12 @@ def quickbooks_callback(request):
         }
     )
 
-    # user.quickbooks = True
-    # user.save()
+    
 
     query_string = request.META['QUERY_STRING']
     dashboard_url = f"https://betterbiz.thelendingline.com/dashboard/?{query_string}"
     return redirect(dashboard_url)
-    # return JsonResponse(tokens)
-    # return redirect('https://betterbiz.thelendingline.com/dashboard')
+
 
 def refresh_quickbooks_token(user):
     token = QuickBooksToken.objects.get(user=user)
