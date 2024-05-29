@@ -36,11 +36,14 @@ def quickbooks_login(request):
 
 
     login_url = requests.Request('GET', authorization_url, params=params).prepare().url
+
+    print(login_url)
     return redirect(login_url)
 
 
 @login_required
 def quickbooks_callback(request):
+
     logger.debug('Callback received')
     code = request.GET.get('code')
     state = request.GET.get('state')
@@ -61,6 +64,8 @@ def quickbooks_callback(request):
     client_id = settings.SOCIALACCOUNT_PROVIDERS['quickbooks']['APP']['client_id']
     client_secret = settings.SOCIALACCOUNT_PROVIDERS['quickbooks']['APP']['secret']
     redirect_uri = settings.SOCIALACCOUNT_PROVIDERS['quickbooks']['APP']['redirect_uri']
+
+    print(redirect_uri)
 
     auth = (client_id, client_secret)
     
@@ -84,8 +89,6 @@ def quickbooks_callback(request):
     business.save()
 
     
-
-    # Save tokens to the database
     QuickBooksToken.objects.update_or_create(
         user=user,
         defaults={
@@ -94,12 +97,14 @@ def quickbooks_callback(request):
             'token_type': tokens['token_type'],
             'expires_in': tokens['expires_in'],
             'x_refresh_token_expires_in': tokens['x_refresh_token_expires_in'],
-            'realm_id': realm_id
+            'realm_id': realm_id,
+            "business":business
         }
     )
     
 
     query_string = request.META['QUERY_STRING']
+    
     dashboard_url = f"https://betterbiz.thelendingline.com/dashboard/?{query_string}"
     return redirect(dashboard_url)
 

@@ -49,7 +49,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://betterbiz.thelendingline.com","http://localhost:5173"
 ]
 
-CSRF_TRUSTED_ORIGINS = ["https://betterbiz.thelendingline.com",'https://betterbiz-ffe47fd6d1ed.herokuapp.com','https://f062-2604-3d09-6a77-4d00-a562-7873-b246-64d7.ngrok-free.app','http://localhost:5173']
+CSRF_TRUSTED_ORIGINS = ["https://betterbiz.thelendingline.com",'https://betterbiz-ffe47fd6d1ed.herokuapp.com','https://60ba-2604-3d09-6a77-4d00-b5fd-cd24-f2cc-5688.ngrok-free.app','http://localhost:5173']
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 SOCIALACCOUNT_PROVIDERS = {
@@ -58,7 +58,7 @@ SOCIALACCOUNT_PROVIDERS = {
             'client_id': 'ABiMYuCAE8GQ2V417AnfP4hKtuU2d2VCx1oRgqz5LntaOaG4Z8',
             'secret': 'tZ3g3VYHignJKSaP47hBVx4fpgruZ3xuyrKJnWzw',
             'redirect_uri': 'https://betterbiz-ffe47fd6d1ed.herokuapp.com/quickbooks/callback/',
-            # 'redirect_uri':"https://f062-2604-3d09-6a77-4d00-a562-7873-b246-64d7.ngrok-free.app/quickbooks/callback/" ,
+            # 'redirect_uri':"https://60ba-2604-3d09-6a77-4d00-b5fd-cd24-f2cc-5688.ngrok-free.app/quickbooks/callback/" ,
             'key': ''
         }
     }
