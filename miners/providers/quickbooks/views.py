@@ -168,7 +168,9 @@ def quickbooks_callback(request):
     quickbooks_score_differentiator = new_business_score - business_business_score.score
     print(quickbooks_score_differentiator)
 
+
     business_business_score.quickbooks_score_differentiator = quickbooks_score_differentiator
+    business_business_score.score = new_business_score
     business_business_score.save()
     
     
