@@ -7,10 +7,34 @@ from django.contrib.auth.decorators import login_required
 from miners.models import QuickBooksToken
 import secrets
 import logging
-from business.models import Business
+from business.models import Business,BusinessScore
 from rest_framework_simplejwt.tokens import AccessToken
+from datetime import timedelta,datetime
+from utils import *
+from questionnaire.models import UserResponse,Questions
 
 logger = logging.getLogger(__name__)
+
+def calculate_total_score(response):
+    total_score = 0
+    for question, answers in response["questions_to_score"].items():
+        try:
+            point = float(answers)
+        except:
+            point = 0
+        total_score += point
+    return total_score
+
+end_date = datetime.now()
+start_date = end_date - timedelta(days=365)
+start_date_str = start_date.strftime('%Y-%m-%d')
+end_date_str = end_date.strftime('%Y-%m-%d')
+
+profit_loss_url = f'https://sandbox-quickbooks.api.intuit.com/v3/company/9341451981840406/reports/ProfitAndLoss?start_date={start_date_str}&end_date={end_date_str}&minorversion=70'
+balance_sheet_report_url = f'https://sandbox-quickbooks.api.intuit.com/v3/company/9341451981840406/reports/BalanceSheet?start_date={start_date_str}&end_date={end_date_str}&minorversion=70'
+trial_balance_report_url = f'https://sandbox-quickbooks.api.intuit.com/v3/company/9341451981840406/reports/TrialBalance?start_date={start_date_str}&end_date={end_date_str}&minorversion=70'
+general_ledger_report_url = f'https://sandbox-quickbooks.api.intuit.com/v3/company/9341451981840406/reports/GeneralLedger?start_date={start_date_str}&end_date={end_date_str}&minorversion=70'
+account_report_url = f'https://sandbox-quickbooks.api.intuit.com/v3/company/9341451981840406/account?start_date={start_date_str}&end_date={end_date_str}&minorversion=70'
 
 @login_required
 def quickbooks_login(request):
@@ -22,7 +46,7 @@ def quickbooks_login(request):
     scope = "com.intuit.quickbooks.accounting"
     state = secrets.token_urlsafe(16)
     business_id = request.GET.get('business_id')
-    print(business_id)
+    # print(business_id)
 
     if not business_id:
         return JsonResponse({'error': 'business_id is required'}, status=400)
@@ -38,7 +62,7 @@ def quickbooks_login(request):
 
     login_url = requests.Request('GET', authorization_url, params=params).prepare().url
 
-    print(login_url)
+    # print(login_url)
     return redirect(login_url)
 
 
@@ -62,8 +86,6 @@ def quickbooks_callback(request):
     client_secret = settings.SOCIALACCOUNT_PROVIDERS['quickbooks']['APP']['secret']
     redirect_uri = settings.SOCIALACCOUNT_PROVIDERS['quickbooks']['APP']['redirect_uri']
 
-    print(redirect_uri)
-
     auth = (client_id, client_secret)
     
     headers = {'Accept': 'application/json'}
@@ -79,9 +101,10 @@ def quickbooks_callback(request):
     
 
     user = request.user
-    
-    business = Business.objects.get(id=business_id)
 
+    print(business_id)
+
+    business = Business.objects.get(id=business_id)
     business.has_connected_quickbooks = True
     business.save()
 
@@ -98,7 +121,11 @@ def quickbooks_callback(request):
             "business":business
         }
     )
-    url = 'https://sandbox-quickbooks.api.intuit.com/v3/company/9341451981840406/query?minorversion=70'
+
+    
+    # url = 'https://sandbox-quickbooks.api.intuit.com/v3/company/9341451981840406/query?minorversion=70'
+
+
     headers = {
         'Authorization': f'Bearer {access_token}',
         'Accept': 'application/json',
@@ -107,21 +134,55 @@ def quickbooks_callback(request):
     }
 
     payload  = 'select * from vendor startposition 1 maxresults 5'
-    response = requests.post(url, headers=headers,data=payload)
-    print(response.status_code)
+    profit_loss_response = requests.post(profit_loss_url, headers=headers,data=payload)
+    balance_sheet_response = requests.post(balance_sheet_report_url,headers=headers,data=payload)
+    
+    if profit_loss_response.status_code == 200:
+        profit_loss = profit_loss_response.json()
 
-    response = requests.post(url, headers=headers,data=payload)
-    print('headers',headers)
-    print('payload',payload)
-    print(response.status_code)
+    if balance_sheet_response.status_code == 200:
+        balance_sheet_response = balance_sheet_response.json()
+    try:
+        total_expenses,net_income = find_financial_data(profit_loss_report)
+        total_account_receivable,total_bank_accounts = find_balance_sheet_data(balance_sheet_report)
+    except:
+        logging.info(f"profit_loss and balance_sheet_response not available")
+
+    #get userresponses to questionnaire
+    userresponse = UserResponse.objects.get(business=business).responses
+    questions = Questions.objects.all().first().questions
+    business_business_score = BusinessScore.objects.get(business=business)
+
+    print(business_business_score.score)
+
+    print("userresponse",userresponse)
+
+
+    total_expenses,net_income = find_financial_data(profit_loss_report)
+    total_account_receivable,total_bank_accounts = find_balance_sheet_data(balance_sheet_report)
+
+    updated_response = update_questionnaire(questions['questions_to_score'],userresponse,total_account_receivable,total_bank_accounts,total_expenses,net_income)
+    new_business_score = calculate_total_score(updated_response)
+    print(new_business_score)
+
+    quickbooks_score_differentiator = new_business_score - business_business_score.score
+    print(quickbooks_score_differentiator)
+
+    business_business_score.quickbooks_score_differentiator = quickbooks_score_differentiator
+    business_business_score.save()
+    
+    
+    print("updatedresponse",updated_response)
+    # print(profit_loss_response.status_code)
+    # print(balance_sheet_response.status_code)
     
 
     query_string = request.META['QUERY_STRING']
 
-    return JsonResponse(tokens)
+    # return JsonResponse(tokens)
     
-    # dashboard_url = f"https://betterbiz.thelendingline.com/dashboard/?{query_string}"
-    # return redirect(dashboard_url)
+    dashboard_url = f"https://betterbiz.thelendingline.com/dashboard/?{query_string}"
+    return redirect(dashboard_url)
 
 
 def refresh_quickbooks_token(user):

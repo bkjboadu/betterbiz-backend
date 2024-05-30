@@ -20,6 +20,459 @@ def send_email(to_emails, subject, content, from_email="bright@betterbizscore.co
     except Exception as e:
         print(e)
         return e
+
+
+def find_balance_sheet_data(balance_sheet_data):
+    rows = balance_sheet_data.get('Rows', {}).get('Row', [])
+    for row in rows:
+        if 'Rows' in row:
+            sub_rows = row['Rows'].get('Row', [])
+            for sub_row in sub_rows:
+                if 'Rows' in sub_row:
+                    sub_sub_rows = sub_row['Rows'].get('Row', [])
+                    for sub_sub_row in sub_sub_rows:
+                        if 'Summary' in sub_sub_row and sub_sub_row.get('group') == 'AR':
+                            summary = sub_sub_row['Summary'].get('ColData', [])
+                            total_account_receivable = float(summary[1].get('value'))
+                        if 'Summary' in sub_sub_row and sub_sub_row.get('group') == 'BankAccounts':
+                            summary = sub_sub_row['Summary'].get('ColData', [])
+                            total_bank_accounts =  float(summary[1].get('value'))
+    return total_account_receivable,total_bank_accounts
+
+def find_financial_data(data):
+    total_expenses = None
+    net_income = None
+    
+    rows = data.get('Rows', {}).get('Row', [])
+    for row in rows:
+        if 'Summary' in row:
+            summary = row['Summary'].get('ColData', [])
+            for col in summary:
+                if col['value'] == 'Total Expenses':
+                    total_expenses = summary[1]['value']
+                elif col['value'] == 'Net Income':
+                    net_income = summary[1]['value']
+        if 'Rows' in row:
+            sub_rows = row['Rows'].get('Row', [])
+            for sub_row in sub_rows:
+                if 'Summary' in sub_row:
+                    summary = sub_row['Summary'].get('ColData', [])
+                    for col in summary:
+                        if col['value'] == 'Total Expenses':
+                            total_expenses = summary[1]['value']
+                        elif col['value'] == 'Net Income':
+                            net_income = summary[1]['value']
+    return total_expenses, net_income
+
+
+def check_expenses_point(value=5237.31,options=[{'<$50,000': 6}, {'$50,000-$100,000': 12}, {'$100,000-$500,000': 18}, {'$500,000-$1 million': 24}, {'$1 million': 30}]):
+    if value < 50000:
+        return options[0]['<$50,000']
+    elif 50000 <= value < 100000:
+        return options[1]['$50,000-$100,000']
+    elif 100000 <= value < 500000:
+        return options[2]['$100,000-$500,000']
+    elif 500000 <= value < 1000000:
+        return options[3]['$500,000-$1 million']
+    else:
+        return options[4]['$1 million']
+
+    return value
+
+def check_netincome_point(value=5,options=[{'Less than 5%': 6},{'5-10%': 12},{'10-15%': 18},{'15-20%': 24},{'More than 20%': 30}]):
+    if value < 5:
+        return options[0]['Less than 5%']
+    elif 5 <= value < 10:
+        return options[1]['5-10%']
+    elif 10 <= value < 15:
+        return options[2]['10-15%']
+    elif 15 <= value < 20:
+        return options[3]['15-20%']
+    else:
+        return options[4]['More than 20%']
+
+    return value
+
+def check_annual_revenue_point(value=5281.52,options=[{'<$100,000': 6},{'$100,000-$500,000': 12},{'$500,000-$1 million': 18},{'$1 million-$5 million': 24},{'$5 million': 30}]):
+    if value < 100000:
+        return options[0]['<$100,000']
+    elif 100000 <= value < 500000:
+        return options[1]['$100,000-$500,000']
+    elif 500000 <= value < 1000000:
+        return options[2]['$500,000-$1 million']
+    elif 1000000 <= value < 5000000:
+        return options[3]['$1 million-$5 million']
+    else:
+        return options[4]['$5 million']
+
+    return value
+
+def check_cashflow_point(value=2001.54,options=[{'Negative cash flow': 6},{'Breakeven cash flow': 12},{'Positive cash flow': 18}]):
+    if value < 0:
+        return options[0]['Negative cash flow']
+    elif value == 0:
+        return options[1]['Breakeven cash flow']
+    else:
+        return options[2]['Positive cash flow']
+
+    return value
+
+def  update_user_response(user_response:dict,point:list,keys_to_update:list):
+    for key,value in zip(keys_to_update,point):
+        user_response['questions_to_score'][key] = value
+    return user_response
+
+
+    
+def update_questionnaire(questions,userresponse,total_account_receivable,total_bank_accounts,total_expenses,net_income):
+    expenses_options = questions['Please specify your expenses'] 
+    revenues_options = questions['Please specify your annual revenues']
+    cashflow_options = questions['Tell us about your Cash Flow']
+    netprofit = questions['Tell us about your Net Profit']
+    
+    expenses_point = check_expenses_point(float(total_expenses),expenses_options)
+    revenues_point = check_annual_revenue_point(float(total_account_receivable),revenues_options)
+    cashflow_point = check_cashflow_point(float(total_bank_accounts),cashflow_options)
+    netincome_point = check_netincome_point(float(net_income),netprofit)
+
+    updated_userresponse = update_user_response(userresponse,[expenses_point,revenues_point,cashflow_point,netincome_point],['expenses','revenue', 'cashFlow','netProfit'])
+    return updated_userresponse
+
+
+# updated_response = update_questionnaire(questions['questions_to_score'],userresponse,total_account_receivable,total_bank_accounts,total_expenses,net_income)
+# updated_response
+
+profit_loss_report = {'Header': {'Time': '2024-05-29T15:21:25-07:00',
+  'ReportName': 'ProfitAndLoss',
+  'ReportBasis': 'Accrual',
+  'StartPeriod': '2023-05-30',
+  'EndPeriod': '2024-05-29',
+  'SummarizeColumnsBy': 'Total',
+  'Currency': 'USD',
+  'Option': [{'Name': 'AccountingStandard', 'Value': 'GAAP'},
+   {'Name': 'NoReportData', 'Value': 'false'}]},
+ 'Columns': {'Column': [{'ColTitle': '',
+    'ColType': 'Account',
+    'MetaData': [{'Name': 'ColKey', 'Value': 'account'}]},
+   {'ColTitle': 'Total',
+    'ColType': 'Money',
+    'MetaData': [{'Name': 'ColKey', 'Value': 'total'}]}]},
+ 'Rows': {'Row': [{'Header': {'ColData': [{'value': 'Income'}, {'value': ''}]},
+    'Rows': {'Row': [{'ColData': [{'value': 'Design income', 'id': '82'},
+        {'value': '2250.00'}],
+       'type': 'Data'},
+      {'ColData': [{'value': 'Discounts given', 'id': '86'},
+        {'value': '-89.50'}],
+       'type': 'Data'},
+      {'Header': {'ColData': [{'value': 'Landscaping Services', 'id': '45'},
+         {'value': '1477.50'}]},
+       'Rows': {'Row': [{'Header': {'ColData': [{'value': 'Job Materials',
+             'id': '46'},
+            {'value': ''}]},
+          'Rows': {'Row': [{'ColData': [{'value': 'Fountains and Garden Lighting',
+               'id': '48'},
+              {'value': '2246.50'}],
+             'type': 'Data'},
+            {'ColData': [{'value': 'Plants and Soil', 'id': '49'},
+              {'value': '2351.97'}],
+             'type': 'Data'},
+            {'ColData': [{'value': 'Sprinklers and Drip Systems', 'id': '50'},
+              {'value': '138.00'}],
+             'type': 'Data'}]},
+          'Summary': {'ColData': [{'value': 'Total Job Materials'},
+            {'value': '4736.47'}]},
+          'type': 'Section'},
+         {'Header': {'ColData': [{'value': 'Labor', 'id': '51'},
+            {'value': ''}]},
+          'Rows': {'Row': [{'ColData': [{'value': 'Installation', 'id': '52'},
+              {'value': '250.00'}],
+             'type': 'Data'},
+            {'ColData': [{'value': 'Maintenance and Repair', 'id': '53'},
+              {'value': '50.00'}],
+             'type': 'Data'}]},
+          'Summary': {'ColData': [{'value': 'Total Labor'},
+            {'value': '300.00'}]},
+          'type': 'Section'}]},
+       'Summary': {'ColData': [{'value': 'Total Landscaping Services'},
+         {'value': '6513.97'}]},
+       'type': 'Section'},
+      {'ColData': [{'value': 'Pest Control Services', 'id': '54'},
+        {'value': '110.00'}],
+       'type': 'Data'},
+      {'ColData': [{'value': 'Sales of Product Income', 'id': '79'},
+        {'value': '912.75'}],
+       'type': 'Data'},
+      {'ColData': [{'value': 'Services', 'id': '1'}, {'value': '503.55'}],
+       'type': 'Data'}]},
+    'Summary': {'ColData': [{'value': 'Total Income'}, {'value': '10200.77'}]},
+    'type': 'Section',
+    'group': 'Income'},
+   {'Header': {'ColData': [{'value': 'Cost of Goods Sold'}, {'value': ''}]},
+    'Rows': {'Row': [{'ColData': [{'value': 'Cost of Goods Sold', 'id': '80'},
+        {'value': '405.00'}],
+       'type': 'Data'}]},
+    'Summary': {'ColData': [{'value': 'Total Cost of Goods Sold'},
+      {'value': '405.00'}]},
+    'type': 'Section',
+    'group': 'COGS'},
+   {'Summary': {'ColData': [{'value': 'Gross Profit'}, {'value': '9795.77'}]},
+    'type': 'Section',
+    'group': 'GrossProfit'},
+   {'Header': {'ColData': [{'value': 'Expenses'}, {'value': ''}]},
+    'Rows': {'Row': [{'ColData': [{'value': 'Advertising', 'id': '7'},
+        {'value': '74.86'}],
+       'type': 'Data'},
+      {'Header': {'ColData': [{'value': 'Automobile', 'id': '55'},
+         {'value': '113.96'}]},
+       'Rows': {'Row': [{'ColData': [{'value': 'Fuel', 'id': '56'},
+           {'value': '349.41'}],
+          'type': 'Data'}]},
+       'Summary': {'ColData': [{'value': 'Total Automobile'},
+         {'value': '463.37'}]},
+       'type': 'Section'},
+      {'ColData': [{'value': 'Equipment Rental', 'id': '29'},
+        {'value': '112.00'}],
+       'type': 'Data'},
+      {'ColData': [{'value': 'Insurance', 'id': '11'}, {'value': '241.23'}],
+       'type': 'Data'},
+      {'Header': {'ColData': [{'value': 'Job Expenses', 'id': '58'},
+         {'value': '155.07'}]},
+       'Rows': {'Row': [{'Header': {'ColData': [{'value': 'Job Materials',
+             'id': '63'},
+            {'value': ''}]},
+          'Rows': {'Row': [{'ColData': [{'value': 'Decks and Patios',
+               'id': '64'},
+              {'value': '234.04'}],
+             'type': 'Data'},
+            {'ColData': [{'value': 'Plants and Soil', 'id': '66'},
+              {'value': '353.12'}],
+             'type': 'Data'},
+            {'ColData': [{'value': 'Sprinklers and Drip Systems', 'id': '67'},
+              {'value': '215.66'}],
+             'type': 'Data'}]},
+          'Summary': {'ColData': [{'value': 'Total Job Materials'},
+            {'value': '802.82'}]},
+          'type': 'Section'}]},
+       'Summary': {'ColData': [{'value': 'Total Job Expenses'},
+         {'value': '957.89'}]},
+       'type': 'Section'},
+      {'Header': {'ColData': [{'value': 'Legal & Professional Fees',
+          'id': '12'},
+         {'value': '75.00'}]},
+       'Rows': {'Row': [{'ColData': [{'value': 'Accounting', 'id': '69'},
+           {'value': '640.00'}],
+          'type': 'Data'},
+         {'ColData': [{'value': 'Bookkeeper', 'id': '70'}, {'value': '55.00'}],
+          'type': 'Data'},
+         {'ColData': [{'value': 'Lawyer', 'id': '71'}, {'value': '400.00'}],
+          'type': 'Data'}]},
+       'Summary': {'ColData': [{'value': 'Total Legal & Professional Fees'},
+         {'value': '1170.00'}]},
+       'type': 'Section'},
+      {'Header': {'ColData': [{'value': 'Maintenance and Repair', 'id': '72'},
+         {'value': '185.00'}]},
+       'Rows': {'Row': [{'ColData': [{'value': 'Equipment Repairs',
+            'id': '75'},
+           {'value': '755.00'}],
+          'type': 'Data'}]},
+       'Summary': {'ColData': [{'value': 'Total Maintenance and Repair'},
+         {'value': '940.00'}]},
+       'type': 'Section'},
+      {'ColData': [{'value': 'Meals and Entertainment', 'id': '13'},
+        {'value': '28.49'}],
+       'type': 'Data'},
+      {'ColData': [{'value': 'Office Expenses', 'id': '15'},
+        {'value': '18.08'}],
+       'type': 'Data'},
+      {'ColData': [{'value': 'Rent or Lease', 'id': '17'},
+        {'value': '900.00'}],
+       'type': 'Data'},
+      {'Header': {'ColData': [{'value': 'Utilities', 'id': '24'},
+         {'value': ''}]},
+       'Rows': {'Row': [{'ColData': [{'value': 'Gas and Electric', 'id': '76'},
+           {'value': '200.53'}],
+          'type': 'Data'},
+         {'ColData': [{'value': 'Telephone', 'id': '77'}, {'value': '130.86'}],
+          'type': 'Data'}]},
+       'Summary': {'ColData': [{'value': 'Total Utilities'},
+         {'value': '331.39'}]},
+       'type': 'Section'}]},
+    'Summary': {'ColData': [{'value': 'Total Expenses'},
+      {'value': '5237.31'}]},
+    'type': 'Section',
+    'group': 'Expenses'},
+   {'Summary': {'ColData': [{'value': 'Net Operating Income'},
+      {'value': '4558.46'}]},
+    'type': 'Section',
+    'group': 'NetOperatingIncome'},
+   {'Header': {'ColData': [{'value': 'Other Expenses'}, {'value': ''}]},
+    'Rows': {'Row': [{'ColData': [{'value': 'Miscellaneous', 'id': '14'},
+        {'value': '2916.00'}],
+       'type': 'Data'}]},
+    'Summary': {'ColData': [{'value': 'Total Other Expenses'},
+      {'value': '2916.00'}]},
+    'type': 'Section',
+    'group': 'OtherExpenses'},
+   {'Summary': {'ColData': [{'value': 'Net Other Income'},
+      {'value': '-2916.00'}]},
+    'type': 'Section',
+    'group': 'NetOtherIncome'},
+   {'Summary': {'ColData': [{'value': 'Net Income'}, {'value': '1642.46'}]},
+    'type': 'Section',
+    'group': 'NetIncome'}]}}
+    
+balance_sheet_report = {'Header': {'Time': '2024-05-29T15:22:23-07:00',
+  'ReportName': 'BalanceSheet',
+  'ReportBasis': 'Accrual',
+  'StartPeriod': '2023-05-30',
+  'EndPeriod': '2024-05-29',
+  'SummarizeColumnsBy': 'Total',
+  'Currency': 'USD',
+  'Option': [{'Name': 'AccountingStandard', 'Value': 'GAAP'},
+   {'Name': 'NoReportData', 'Value': 'false'}]},
+ 'Columns': {'Column': [{'ColTitle': '',
+    'ColType': 'Account',
+    'MetaData': [{'Name': 'ColKey', 'Value': 'account'}]},
+   {'ColTitle': 'Total',
+    'ColType': 'Money',
+    'MetaData': [{'Name': 'ColKey', 'Value': 'total'}]}]},
+ 'Rows': {'Row': [{'Header': {'ColData': [{'value': 'ASSETS'}, {'value': ''}]},
+    'Rows': {'Row': [{'Header': {'ColData': [{'value': 'Current Assets'},
+         {'value': ''}]},
+       'Rows': {'Row': [{'Header': {'ColData': [{'value': 'Bank Accounts'},
+            {'value': ''}]},
+          'Rows': {'Row': [{'ColData': [{'value': 'Checking', 'id': '35'},
+              {'value': '1201.00'}],
+             'type': 'Data'},
+            {'ColData': [{'value': 'Savings', 'id': '36'},
+              {'value': '800.00'}],
+             'type': 'Data'}]},
+          'Summary': {'ColData': [{'value': 'Total Bank Accounts'},
+            {'value': '2001.00'}]},
+          'type': 'Section',
+          'group': 'BankAccounts'},
+         {'Header': {'ColData': [{'value': 'Accounts Receivable'},
+            {'value': ''}]},
+          'Rows': {'Row': [{'ColData': [{'value': 'Accounts Receivable (A/R)',
+               'id': '84'},
+              {'value': '5281.52'}],
+             'type': 'Data'}]},
+          'Summary': {'ColData': [{'value': 'Total Accounts Receivable'},
+            {'value': '5281.52'}]},
+          'type': 'Section',
+          'group': 'AR'},
+         {'Header': {'ColData': [{'value': 'Other Current Assets'},
+            {'value': ''}]},
+          'Rows': {'Row': [{'ColData': [{'value': 'Inventory Asset',
+               'id': '81'},
+              {'value': '596.25'}],
+             'type': 'Data'},
+            {'ColData': [{'value': 'Undeposited Funds', 'id': '4'},
+              {'value': '2062.52'}],
+             'type': 'Data'}]},
+          'Summary': {'ColData': [{'value': 'Total Other Current Assets'},
+            {'value': '2658.77'}]},
+          'type': 'Section',
+          'group': 'OtherCurrentAssets'}]},
+       'Summary': {'ColData': [{'value': 'Total Current Assets'},
+         {'value': '9941.29'}]},
+       'type': 'Section',
+       'group': 'CurrentAssets'},
+      {'Header': {'ColData': [{'value': 'Fixed Assets'}, {'value': ''}]},
+       'Rows': {'Row': [{'Header': {'ColData': [{'value': 'Truck', 'id': '37'},
+            {'value': ''}]},
+          'Rows': {'Row': [{'ColData': [{'value': 'Original Cost', 'id': '38'},
+              {'value': '13495.00'}],
+             'type': 'Data'}]},
+          'Summary': {'ColData': [{'value': 'Total Truck'},
+            {'value': '13495.00'}]},
+          'type': 'Section'}]},
+       'Summary': {'ColData': [{'value': 'Total Fixed Assets'},
+         {'value': '13495.00'}]},
+       'type': 'Section',
+       'group': 'FixedAssets'}]},
+    'Summary': {'ColData': [{'value': 'TOTAL ASSETS'}, {'value': '23436.29'}]},
+    'type': 'Section',
+    'group': 'TotalAssets'},
+   {'Header': {'ColData': [{'value': 'LIABILITIES AND EQUITY'},
+      {'value': ''}]},
+    'Rows': {'Row': [{'Header': {'ColData': [{'value': 'Liabilities'},
+         {'value': ''}]},
+       'Rows': {'Row': [{'Header': {'ColData': [{'value': 'Current Liabilities'},
+            {'value': ''}]},
+          'Rows': {'Row': [{'Header': {'ColData': [{'value': 'Accounts Payable'},
+               {'value': ''}]},
+             'Rows': {'Row': [{'ColData': [{'value': 'Accounts Payable (A/P)',
+                  'id': '33'},
+                 {'value': '1602.67'}],
+                'type': 'Data'}]},
+             'Summary': {'ColData': [{'value': 'Total Accounts Payable'},
+               {'value': '1602.67'}]},
+             'type': 'Section',
+             'group': 'AP'},
+            {'Header': {'ColData': [{'value': 'Credit Cards'}, {'value': ''}]},
+             'Rows': {'Row': [{'ColData': [{'value': 'Mastercard', 'id': '41'},
+                 {'value': '157.72'}],
+                'type': 'Data'}]},
+             'Summary': {'ColData': [{'value': 'Total Credit Cards'},
+               {'value': '157.72'}]},
+             'type': 'Section',
+             'group': 'CreditCards'},
+            {'Header': {'ColData': [{'value': 'Other Current Liabilities'},
+               {'value': ''}]},
+             'Rows': {'Row': [{'ColData': [{'value': 'Arizona Dept. of Revenue Payable',
+                  'id': '89'},
+                 {'value': '0.00'}],
+                'type': 'Data'},
+               {'ColData': [{'value': 'Board of Equalization Payable',
+                  'id': '90'},
+                 {'value': '370.94'}],
+                'type': 'Data'},
+               {'ColData': [{'value': 'Loan Payable', 'id': '43'},
+                 {'value': '4000.00'}],
+                'type': 'Data'}]},
+             'Summary': {'ColData': [{'value': 'Total Other Current Liabilities'},
+               {'value': '4370.94'}]},
+             'type': 'Section',
+             'group': 'OtherCurrentLiabilities'}]},
+          'Summary': {'ColData': [{'value': 'Total Current Liabilities'},
+            {'value': '6131.33'}]},
+          'type': 'Section',
+          'group': 'CurrentLiabilities'},
+         {'Header': {'ColData': [{'value': 'Long-Term Liabilities'},
+            {'value': ''}]},
+          'Rows': {'Row': [{'ColData': [{'value': 'Notes Payable', 'id': '44'},
+              {'value': '25000.00'}],
+             'type': 'Data'}]},
+          'Summary': {'ColData': [{'value': 'Total Long-Term Liabilities'},
+            {'value': '25000.00'}]},
+          'type': 'Section',
+          'group': 'LongTermLiabilities'}]},
+       'Summary': {'ColData': [{'value': 'Total Liabilities'},
+         {'value': '31131.33'}]},
+       'type': 'Section',
+       'group': 'Liabilities'},
+      {'Header': {'ColData': [{'value': 'Equity'}, {'value': ''}]},
+       'Rows': {'Row': [{'ColData': [{'value': 'Opening Balance Equity',
+            'id': '34'},
+           {'value': '-9337.50'}],
+          'type': 'Data'},
+         {'ColData': [{'value': 'Retained Earnings', 'id': '2'},
+           {'value': '149.62'}],
+          'type': 'Data'},
+         {'ColData': [{'value': 'Net Income'}, {'value': '1492.84'}],
+          'type': 'Data',
+          'group': 'NetIncome'}]},
+       'Summary': {'ColData': [{'value': 'Total Equity'},
+         {'value': '-7695.04'}]},
+       'type': 'Section',
+       'group': 'Equity'}]},
+    'Summary': {'ColData': [{'value': 'TOTAL LIABILITIES AND EQUITY'},
+      {'value': '23436.29'}]},
+    'type': 'Section',
+    'group': 'TotalLiabilitiesAndEquity'}]}}
+
+
 {   "questions_with_no_scores":{
         "What Industry is your business in?": [],
     },

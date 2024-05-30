@@ -62,6 +62,7 @@ class BusinessScore(models.Model):
     )
     score = models.IntegerField(null=True,blank=True)
     date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    quickbooks_score_differentiator = models.IntegerField(null=True,blank=True)
 
     def __str__(self):
         return f"{self.business.name}_score-{self.score}"
