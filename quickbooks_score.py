@@ -1,0 +1,16 @@
+
+import requests
+
+url = "https://sandbox-quickbooks.api.intuit.com/v3/company/9341451981840406/query?minorversion=70"
+
+payload = "select * from vendor startposition 1 maxresults 5"
+headers = {
+  'User-Agent': 'QBOV3-OAuth2-Postman-Collection',
+  'Accept': 'application/json',
+  'Content-Type': 'application/text',
+  'Authorization': "Bearer eyJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwiYWxnIjoiZGlyIn0..JliB-wNH_frzbEXnZJ5DJw.RogCJgSbpI4iI7N3E8oNtOzB3kZt9X9dbPExr7GvpYjXFFZJ9alpddJ19uEvl5a6mXdtkxcyOw7eV18kkIN7R5o9IBl9BPa7-UoS8EjcT7s0-wjFVfGIKpRw7av3odYt_CS1nQOLlaNVwLz3-mD77lf3GHH1F-mDMn7-nV4Y1ZVLXAWBrho8Tw6PtPEdgCKvwzL9esJ0E5dXvm64nm3wbDCCJ2-edWfFZswHNbfnCWawFFsTsiSjoq29H7WAk6wOvC6Q94UG0sjBehtClvwG80PhZf4DJqb5OK2hMOHULiCB96Kh4e6hnlzG3kJXdahBywpmPRkzMu6baH3NNXb8DEbOPeiC_fmKuipP2dJHFfMeqtmuVITexW80WrlRZfNw-Xwkb3HxoLLSIzsLRTmzNLbQvrxdyahovyvmffNleCttypRNnZzSCxAa9tht8uE4ZOeGxzqQPs-dxWw2xJxhXP2nlCbe5qWJ6-g93OZKHG7Udll9Yx45t6tntwhG03RmUABat3tjhSOIwIMQ6pEsIo3c2YkcQ8AaPvoXJ7vKWTN0kCtyr3B15pgIslwnjvrTVavqhW71AmtyO0yF14Zg4BFj9Fbl8vsvf1JdJX9O1LzgJGHowrtVPh5NLOuAuBloqNbzSFtvpZJ5NZ2gDHrAdANS-GRThiKjux5zFjqCwlFhjGhXHmpfyyaS07RU0RhW3gKkOueHtmgwtvdkSpMdAaW0Wqo0pDpj9RDbwVvn3n-XrrOOzzTgAQ0PeARrgquo.2cPGBg0lDW4kXD-IklNSzA"
+}
+
+response = requests.post(url, headers=headers, data=payload)
+
+print(response.json())

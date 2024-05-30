@@ -8,6 +8,7 @@ from miners.models import QuickBooksToken
 import secrets
 import logging
 from business.models import Business
+from rest_framework_simplejwt.tokens import AccessToken
 
 logger = logging.getLogger(__name__)
 
@@ -51,10 +52,6 @@ def quickbooks_callback(request):
 
     state_parts = state.split('|')
     business_id = state_parts[1]
-
-    print(state)
-
-    print(business_id)
 
     if not business_id:
         return JsonResponse({'error': 'business_id is required'}, status=400)
@@ -101,12 +98,30 @@ def quickbooks_callback(request):
             "business":business
         }
     )
+    url = 'https://sandbox-quickbooks.api.intuit.com/v3/company/9341451981840406/query?minorversion=70'
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Accept': 'application/json',
+        'Content-Type': 'application/text',
+        'User-Agent': 'QBOV3-OAuth2-Postman-Collection'
+    }
+
+    payload  = 'select * from vendor startposition 1 maxresults 5'
+    response = requests.post(url, headers=headers,data=payload)
+    print(response.status_code)
+
+    response = requests.post(url, headers=headers,data=payload)
+    print('headers',headers)
+    print('payload',payload)
+    print(response.status_code)
     
 
     query_string = request.META['QUERY_STRING']
+
+    return JsonResponse(tokens)
     
-    dashboard_url = f"https://betterbiz.thelendingline.com/dashboard/?{query_string}"
-    return redirect(dashboard_url)
+    # dashboard_url = f"https://betterbiz.thelendingline.com/dashboard/?{query_string}"
+    # return redirect(dashboard_url)
 
 
 def refresh_quickbooks_token(user):
@@ -135,14 +150,21 @@ def refresh_quickbooks_token(user):
 
     return token
 
-@login_required
+
 def get_quickbooks_company_info(request):
     try:
-        token = QuickBooksToken.objects.get(user=request.user)
+        token = request.headers.get("Authorization").split(" ")[-1]
+        decoded_token = AccessToken(token)
+        user_id = decoded_token.get("user_id")
+        print(user_id)
+
+        if user_id:
+            token = QuickBooksToken.objects.get(user=user_id)
+            print(token)
     except QuickBooksToken.DoesNotExist:
         return JsonResponse({'error': 'No QuickBooks token found for user'}, status=400)
     
-    print(request.user)
+    
 
     access_token = token.access_token
     realm_id = token.realm_id  
@@ -164,8 +186,9 @@ def get_quickbooks_company_info(request):
     print('payload',payload)
     print(response.status_code)
     if response.status_code == 401:
-        token = refresh_quickbooks_token(request.user)
+        token = refresh_quickbooks_token(user_id)
         access_token = token.access_token
+        print(access_token)
         headers['Authorization'] = f'Bearer {access_token}'
         response = requests.get(url, headers=headers)
     

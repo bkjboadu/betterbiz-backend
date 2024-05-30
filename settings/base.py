@@ -57,8 +57,8 @@ SOCIALACCOUNT_PROVIDERS = {
         'APP': {
             'client_id': 'ABiMYuCAE8GQ2V417AnfP4hKtuU2d2VCx1oRgqz5LntaOaG4Z8',
             'secret': 'tZ3g3VYHignJKSaP47hBVx4fpgruZ3xuyrKJnWzw',
-            'redirect_uri': 'https://betterbiz-ffe47fd6d1ed.herokuapp.com/quickbooks/callback/',
-            # 'redirect_uri':"https://60ba-2604-3d09-6a77-4d00-b5fd-cd24-f2cc-5688.ngrok-free.app/quickbooks/callback/" ,
+            # 'redirect_uri': 'https://betterbiz-ffe47fd6d1ed.herokuapp.com/quickbooks/callback/',
+            'redirect_uri':"https://60ba-2604-3d09-6a77-4d00-b5fd-cd24-f2cc-5688.ngrok-free.app/quickbooks/callback/" ,
             'key': ''
         }
     }
